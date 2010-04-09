@@ -1,0 +1,16 @@
+queue:
+- name: default
+  rate: 1/s
+  bucket_size: 5  
+- name: sunlight
+  rate: 1/s
+  bucket_size: 5
+- name: opensecrets
+  rate: 1/s
+  bucket_size: 5
+- name: cacher
+  rate: 1/s
+  bucket_size: 50
+- name: indexer
+  rate: 1/s
+  bucket_size: 50  

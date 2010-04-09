@@ -1,0 +1,13 @@
+cron:
+- description: "Loader: Candidates"
+  url: /setup/sunlight
+  schedule: every 72 hours
+- description: "Loader: OpenSecrets"
+  url: /setup/opensecrets
+  schedule: every 80 hours
+- description: "Indexer: Candidates"
+  url: /_ah/cron/indexer/candidates
+  schedule: every 85 hours
+- description: "Indexer: Contributors"
+  url: /_ah/cron/indexer/contributors
+  schedule: every 85 hours

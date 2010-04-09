@@ -1,0 +1,106 @@
+# --- Important global application properties
+application: fatcatmap # appengine ID. do not change.
+version: beta # version of app. note: string, not int.
+runtime: python # runtime in use. do not change from 'python'.
+api_version: 1 # should not be changed on a whim.
+
+# --- Set expiration high during production
+default_expiration: 1m
+
+inbound_services:
+- xmpp_message
+- mail
+
+handlers:
+
+#### Service Handlers
+- url: /_ah/cron/cachebot.*
+  script: services/cron/cachebot.py
+  login: admin
+
+- url: /_ah/cron/databot
+  script: services/cron/databot.py
+  login: admin
+
+- url: /_ah/cron/indexer.*
+  script: services/cron/indexbot.py
+  login: admin
+
+- url: /_ah/queue/cacher
+  script: services/queues/cacher.py
+  login: admin
+
+- url: /_ah/queue/sunlight
+  script: services/queues/sunlight.py
+  login: admin
+
+- url: /_ah/queue/opensecrets
+  script: services/queues/opensecrets.py
+  login: admin
+
+- url: /_ah/queue/indexer
+  script: services/queues/indexer.py
+  login: admin
+
+- url: /_ah/queue/deferred
+  script: $PYTHON_LIB/google/appengine/ext/deferred/deferred.py
+  login: admin
+
+#### Asset Handlers
+- url: /assets/flash
+  static_dir: assets/flash
+
+- url: /assets/images/static
+  static_dir: assets/images/static
+
+- url: /assets/images/.*
+  script: assets/images/retrieve.py
+
+- url: /assets/style
+  static_dir: assets/style
+
+- url: /assets/js
+  static_dir: assets/js
+  
+#### Security Handlers
+- url: /login
+  script: views/security.py
+
+- url: /logout
+  script: views/security.py
+ 
+#### Temp Handlers
+- url: /setup/.*
+  script: views/setup.py
+    
+### AMF Handlers
+- url: /_rpc/data
+  script: services/newdata.py
+
+- url: /_rpc/security
+  script: services/security.py
+
+- url: /_rpc/crossdomain.xml
+  script: views/crossdomain.py
+  
+### Crossdomain File
+- url: /crossdomain.xml
+  script: views/crossdomain.py
+  
+### Temporary Testing
+- url: /test/recursive
+  script: views/testrecursive.py
+    
+### Dev/Cache Entries
+- url: /dev/run_tasks
+  script: views/run_tasks.py
+
+- url: /dev/check_cache
+  script: views/cache.py
+
+- url: /dev/clear_cache
+  script: views/cache.py
+    
+#### Main Handler
+- url: /.*
+  script: views/fatcatmap.py

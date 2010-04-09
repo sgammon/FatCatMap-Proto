@@ -1,0 +1,18 @@
+indexes:
+
+- kind: Donation
+  properties:
+  - name: candidate
+  - name: amount
+
+- kind: Donation
+  properties:
+  - name: candidate
+  - name: amount
+    direction: desc
+
+- kind: Donation
+  properties:
+  - name: contributor
+  - name: amount
+    direction: desc
