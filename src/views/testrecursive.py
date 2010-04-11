@@ -33,14 +33,16 @@ class RecursiveTest(webapp.RequestHandler):
            indent = indent+'===='
         self.response.out.write(indent+node['display_text']+"<br />")
        
-        for connection in node['connections']:
+        for connection in range(0,len(node['object']['connections'])):
             
             # if we're mapping root, we don't need to compare anything
+            self.response.out.write('<br />key: '+str(node['key'])+'<br />')
+            self.response.out.write('parent: '+str(parent)+'<br /><br />')
             if parent != None:
-                if parent == connection:
+                if parent == node['key']:
                     continue
                 
-            self.print_recursive(node['key'],node['connections'][connection],depth+1)
+            self.print_recursive(node['key'],node['object']['connections'][connection],depth+1)
 
 application = webapp.WSGIApplication([('/test/recursive',RecursiveTest)],debug=True)
         
