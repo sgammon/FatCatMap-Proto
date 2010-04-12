@@ -22,6 +22,8 @@ class Candidate(db.Model):
     district = db.StringProperty(indexed=True)
     gender = db.StringProperty()
     webform = db.StringProperty()
+    party = db.ReferenceProperty()
+    partytext = db.StringProperty(choices=['D','R','I'])
     
     last_index = db.DateTimeProperty(default=None)
     modified = db.DateTimeProperty(auto_now=True)

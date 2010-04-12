@@ -10,8 +10,8 @@ class RecursiveTest(webapp.RequestHandler):
 
     def get(self):
 
-        depth = self.request.get('depth',default_value=1)
-        climit = self.request.get('depth',default_value=9)
+        depth = self.request.get('depth',default_value=settings.grapher_depth)
+        climit = self.request.get('depth',default_value=settings.grapher_climit)
 
         c = Candidate.all()
         c = c.fetch(1)

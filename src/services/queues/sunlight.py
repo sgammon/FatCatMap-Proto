@@ -38,12 +38,15 @@ class SunlightWorker(webapp.RequestHandler):
             c.title = legislator["title"]
             displaytext = displaytext+legislator["title"]+'. '
         if legislator["party"] is not None and legislator["party"] is not '':    
-            if legislator["party"] == 'D':
+            if legislator["party"].lower() == 'd':
                 c.party = dems
-            elif legislator["party"] == 'R':
+                c.partytext = 'D'
+            elif legislator["party"].lower() == 'r':
                 c.party = reps
-            elif legislator["party"] == 'I':
+                c.partytext = 'R'
+            elif legislator["party"].lower() == 'i':
                 c.party = ind
+                c.partytext = 'I'
         
         if (legislator['district'] == 'Junior Seat') or (legislator['district'] == 'Senior Seat'): 
             displaytext = displaytext+legislator['firstname']+" "+legislator['lastname']+" ("+legislator['party']+'-'+legislator["state"]+")"

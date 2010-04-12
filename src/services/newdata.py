@@ -118,10 +118,10 @@ class FatCatData:
 
     def RetrieveConnectionsByKey(self,key):
         
-        memkey = 'map::key_'+key+'::depth_4::climit_9'
+        memkey = 'map::key_'+key+'::depth_'+str(settings.grapher_depth)+'::climit_'+str(settings.grapher_climit)
         map = memcache.get(memkey)
         if map is None:
-            map = mapObject(key,None,True,4,9)
+            map = mapObject(key,None,True,settings.grapher_depth,settings.grapher_climit)
             memcache.set(memkey,map,time=7200)
             
         return {'result':'success','response':map}
@@ -136,11 +136,11 @@ class FatCatData:
             c = c[0]
             memcache.set('initial_graph_seed',c,time=7200)
             
-        memkey = 'map::key_'+str(c.key())+'::depth_4::climit_9'
+        memkey = 'map::key_'+str(c.key())+'::depth_'+str(settings.grapher_depth)+'::climit_'+str(settings.grapher_climit)
         map = memcache.get(memkey)
         map = None
         if map is None:
-            map = mapObject(c,None,True,1,9)
+            map = mapObject(c,None,True,settings.grapher_depth,settings.grapher_climit)
             memcache.set(memkey,map,time=7200)
         return {'result':'success','response':map}
     
