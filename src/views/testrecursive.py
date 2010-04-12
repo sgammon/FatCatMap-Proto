@@ -4,6 +4,8 @@ from google.appengine.ext.webapp.util import run_wsgi_app
 from models import *
 from services.newdata import *
 
+parentlist = {}
+
 class RecursiveTest(webapp.RequestHandler):
 
     def get(self):
@@ -16,33 +18,31 @@ class RecursiveTest(webapp.RequestHandler):
         
         c = c[0]
         
-        memkey = 'map::key_'+str(c.key())+'::depth_'+str(depth)+'::climit_'+str(climit)
+        #memkey = 'map::key_'+str(c.key())+'::depth_'+str(depth)+'::climit_'+str(climit)
         
-        map = memcache.get(memkey)
+        #map = memcache.get(memkey)
+        map = None
         if map is None:
-            map = mapObject((c.key()),True,int(depth),9)
-            memcache.set(memkey,map,time=7200)
+            map = mapObject((c.key()),None,True,int(depth),9)
+            #memcache.set(memkey,map,time=7200)
         
         self.print_recursive(None,map)
    
-    def print_recursive(self,parent,node,depth=1):
+    def print_recursive(self,parent,node,depth=1,omit_list=[]):
            
         indent = '='
-       
+          
         for i in range(1, depth):
-           indent = indent+'===='
+           indent = indent+'====' 
+        
         self.response.out.write(indent+node['display_text']+"<br />")
-       
+        
         for connection in range(0,len(node['object']['connections'])):
             
             # if we're mapping root, we don't need to compare anything
-            self.response.out.write('<br />key: '+str(node['key'])+'<br />')
-            self.response.out.write('parent: '+str(parent)+'<br /><br />')
-            if parent != None:
-                if parent == node['key']:
-                    continue
-                
-            self.print_recursive(node['key'],node['object']['connections'][connection],depth+1)
+            #self.response.out.write('<br />key: '+str(node['key'])+'<br />')
+            #self.response.out.write('parent: '+str(parent)+'<br /><br />')
+            self.print_recursive(parent,node['object']['connections'][connection],depth+1)
 
 application = webapp.WSGIApplication([('/test/recursive',RecursiveTest)],debug=True)
         
