@@ -1,0 +1,57 @@
+{% extends "core/__base.html" %}
+
+{% block title %}FatCatMap: Sandbox{% endblock %}
+
+{% block postnorth %}
+    <script type="text/javascript" src="http://vis.stanford.edu/protovis/ex/miserables.js"></script>
+{% endblock %}
+
+{% block body %}
+	<div id='container'>
+		
+		<div id='header'>
+			<p>FatCatMap: Sandbox</p>
+		</div>
+		
+		<div id='viz_content'>
+			
+		    <script type="text/javascript+protovis">
+
+				var w = $("#viz_content").width(),
+				    h = $("#viz_content").height(),
+				    colors = pv.Colors.category19();
+
+				var vis = new pv.Panel(document.getElementById('viz_content'))
+				    .width(w)
+				    .height(h)
+				    .fillStyle("white")
+				    .event("mousedown", pv.Behavior.pan())
+				    .event("mousewheel", pv.Behavior.zoom());
+
+				var force = vis.add(pv.Layout.Force)
+				    .nodes(miserables.nodes)
+				    .links(miserables.links);
+
+				force.link.add(pv.Line);
+
+				force.node.add(pv.Dot)
+				    .size(function(d) (d.linkDegree + 4) * Math.pow(this.scale, -1.5))
+				    .fillStyle(function(d) d.fix ? "brown" : colors(d.group))
+				    .strokeStyle(function() this.fillStyle().darker())
+				    .lineWidth(1)
+				    .title(function(d) d.nodeName)
+				    .event("mousedown", pv.Behavior.drag())
+				    .event("drag", force);
+
+				vis.render();
+
+		    </script>
+			
+		</div>
+		
+		<div id='footer'>
+			<p>Copyright &copy;2010, Sam Gammon &lt;<a href="mailto:s@providenceclarity.com" alt="mailto: sam gammon">sg@samgammon.com</a>&gt;</p>
+		</div>
+		
+	</div>
+{% endblock %}

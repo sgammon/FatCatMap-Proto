@@ -1,0 +1,54 @@
+8
+
+dir
+137
+http://appengine-mapreduce.googlecode.com/svn/trunk/python/src/mapreduce/lib/blobstore
+http://appengine-mapreduce.googlecode.com/svn
+
+
+
+2010-09-29T17:58:32.195239Z
+113
+mike.aizatsky
+
+
+svn:special svn:externals svn:needs-lock
+
+
+
+
+
+
+
+
+
+
+
+441dd3cb-e453-d85f-364a-b28e0c74875c
+
+blobstore.py
+file
+
+
+
+
+2010-12-20T22:36:36.000000Z
+bcdbaf98e58d7d753ef0a5c33861591b
+2010-09-29T17:58:32.195239Z
+113
+mike.aizatsky
+has-props
+
+__init__.py
+file
+
+
+
+
+2010-12-20T22:36:36.000000Z
+f9a116f3c624a229b952f0d0a7cc3666
+2010-09-29T17:58:32.195239Z
+113
+mike.aizatsky
+has-props
+

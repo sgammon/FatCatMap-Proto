@@ -1,0 +1,60 @@
+body
+{
+    background: #333;
+    color: #fff;
+    font: 300 100.1% "Helvetica Neue", Helvetica, "Arial Unicode MS", Arial, sans-serif;
+	margin:0;
+}
+
+#container
+{
+	margin-left:auto;
+	margin-right:auto;
+	width:99%;
+	height:99%;
+	text-align:center;
+}
+
+#viz_content
+{
+    height: 89%;
+	background:white;
+    width: 98%;
+	margin-left:auto;
+	margin-right:auto;
+	text-align:center;
+}		
+
+#header
+{
+	padding-top:1px;
+	padding-left:14px;
+	text-align:left;
+}
+
+#footer
+{
+	padding-bottom:1px;
+	padding-right:14px;
+	text-align:right;
+    font: 300 80% "Helvetica Neue", Helvetica, "Arial Unicode MS", Arial, sans-serif;			
+}
+
+#copy
+{
+    bottom: 0;
+    font: 300 .8em "Helvetica Neue", Helvetica, "Arial Unicode MS", Arial, sans-serif;
+    position: absolute;
+    right: 1em;
+    text-align: right;
+}
+
+#copy a
+{
+    color: #fff;
+}
+
+p a
+{
+	color:#888;
+}

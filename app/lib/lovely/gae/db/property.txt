@@ -1,0 +1,273 @@
+==========================
+DB Custom Property Classes
+==========================
+
+Typed Lists
+===========
+
+This property converts model instances to keys and ensures a length.
+
+    >>> from lovely.gae.db.property import TypedListProperty
+    >>> from google.appengine.ext import db
+
+Let us create a model
+
+    >>> class Yummy(db.Model): pass
+    >>> class Bummy(db.Model): pass
+
+We can now reference Yummy instances with our property. Note that we
+can also use the kind name as an argument of the kind.
+
+    >>> class Dummy(db.Model):
+    ...     yummies = TypedListProperty(Yummy)
+    ...     bummies = TypedListProperty('Bummy', length=3)
+
+The kind arguement needs to be a subclass kind name or a db.Model.
+
+    >>> TypedListProperty(object)
+    Traceback (most recent call last):
+    ...
+    ValueError: Kind needs to be a subclass of db.Model
+
+    >>> dummy = Dummy()
+    >>> dummy_key = dummy.put()
+    >>> yummy1 = Yummy()
+    >>> yummy1_key = yummy1.put()
+    >>> dummy.yummies = [yummy1]
+
+We cannot set any other type.
+
+    >>> bummy1 = Bummy()
+    >>> bummy1_key = bummy1.put()
+    >>> dummy.yummies = [bummy1]
+    Traceback (most recent call last):
+    ...
+    BadValueError: Wrong kind u'Bummy'
+
+The length needs to match if defined (see above).
+
+    >>> dummy.bummies = [bummy1]
+    Traceback (most recent call last):
+    ...
+    BadValueError: Wrong length need 3 got 1
+
+    >>> dummy.bummies = [bummy1, bummy1, bummy1]
+    >>> dummy_key == dummy.put()
+    True
+
+Case-Insensitive String Property
+================================
+
+This property allows searching for the lowercase prefix in a
+case-insensitive manner. This is usefull for autocomplete
+implementations where we do not want to have a seperate property just
+for searching.
+
+    >>> from lovely.gae.db.property import IStringProperty
+    >>> class Foo(db.Model):
+    ...     title = IStringProperty()
+
+    >>> f1 = Foo(title='Foo 1')
+    >>> kf1 = f1.put()
+    >>> f2 = Foo(title='Foo 2')
+    >>> kf2 = f2.put()
+    >>> f3 = Foo(title='foo 3')
+    >>> kf3 = f3.put()
+    >>> f4 = Foo(title=None)
+    >>> kf4 = f4.put()
+
+The property does not allow the special seperator character which is
+just one below the  highest unicode character,
+
+    >>> f3 = Foo(title='Foo 3' + IStringProperty.SEPERATOR)
+    Traceback (most recent call last):
+    ...
+    BadValueError: Not all characters in property title
+
+Note that if we want to do an exact search, we have to use a special
+filter that can be created by the property instance.
+
+    >>> [f.title for f in Foo.all().filter('title =', 'foo 1')]
+    []
+
+The "equal" filter arguments can be computed with a special method on
+the property.
+
+    >>> ef = Foo.title.equals_filter('Foo 1')
+    >>> ef
+    ('title =', u'foo 1\xef\xbf\xbcFoo 1')
+
+    >>> [f.title for f in Foo.all().filter(*ef)]
+    [u'Foo 1']
+
+Let us try with inequallity, e.g. prefix search. Prefix search is
+normally done with two filters using the highest unicode character.
+
+Search for all that starts with "fo" case-insensitive.
+
+    >>> q = Foo.all()
+    >>> q = q.filter('title >=', 'fo')
+    >>> q = q.filter('title <', 'fo' + u'\xEF\xBF\xBD')
+    >>> [f.title for f in q]
+    [u'Foo 1', u'Foo 2', u'foo 3']
+
+Search for all that starts with 'foo 1'
+
+    >>> q = Foo.all()
+    >>> q = q.filter('title >=', 'foo 1')
+    >>> q = q.filter('title <', 'foo 1' + u'\xEF\xBF\xBD')
+    >>> [f.title for f in q]
+    [u'Foo 1']
+
+    >>> q = Foo.all()
+    >>> q = q.filter('title >=', 'foo 2')
+    >>> q = q.filter('title <=', 'foo 2' + u'\xEF\xBF\xBD')
+    >>> [f.title for f in q]
+    [u'Foo 2']
+
+    >>> q = Foo.all()
+    >>> q = q.filter('title >=', 'foo 3')
+    >>> q = q.filter('title <=', 'foo 3' + u'\xEF\xBF\xBD')
+    >>> [f.title for f in q]
+    [u'foo 3']
+
+
+Pickle Property
+===============
+
+A pickle property can hold any pickleable python object.
+
+    >>> from lovely.gae.db.property import PickleProperty
+
+    >>> class Pickie(db.Model):
+    ...     data = PickleProperty()
+
+    >>> pickie = Pickie(data={})
+    >>> pickie.data
+    {}
+    >>> kp = pickie.put()
+    >>> pickie.data
+    {}
+    >>> pickie = db.get(kp)
+    >>> pickie.data
+    {}
+    >>> pickie.data = {'key':501*"x"}
+    >>> kp = pickie.put()
+    >>> pickie.data
+    {'key': 'xx...xx'}
+
+If the value is not pickleable we get a validation error.
+
+    >>> pickie = Pickie(data=dict(y=lambda x:x))
+    Traceback (most recent call last):
+    BadValueError: Property 'data' must be pickleable:
+    (Can't pickle <function <lambda> at ...>:
+    it's not found as __main__.<lambda>)
+
+
+Safe ReferenceProperty
+======================
+
+    >>> from lovely.gae.db.property import SafeReferenceProperty
+
+We use a new model with a gae reference and our safe reference.
+
+    >>> class Refie(db.Model):
+    ...     ref   = db.ReferenceProperty(Yummy, collection_name='ref_ref')
+    ...     sfref = SafeReferenceProperty(Yummy, collection_name='sfref_ref')
+
+    >>> refie = Refie()
+    >>> refie.sfref is None
+    True
+    >>> refie.ref is None
+    True
+
+An object to be referenced.
+
+    >>> refyummy1 = Yummy()
+    >>> ignore = refyummy1.put()
+
+Set the references to our yummy object.
+
+    >>> refie.sfref = refyummy1
+    >>> refie.sfref
+    <Yummy object at ...>
+    >>> refie.ref = refyummy1
+    >>> refie.ref
+    <Yummy object at ...>
+
+    >>> refieKey = refie.put()
+
+Now we delete the referenced object.
+
+    >>> refyummy1.delete()
+
+And reload our referencing object.
+
+    >>> refie = db.get(refieKey)
+
+The gae reference raises an exception.
+
+    >>> refie.ref
+    Traceback (most recent call last):
+    Error: ReferenceProperty failed to be resolved
+
+We catch the logs here.
+
+    >>> import logging
+    >>> from StringIO import StringIO
+    >>> log = StringIO()
+    >>> handler = logging.StreamHandler(log)
+    >>> logger = logging.getLogger('lovely.gae.db')
+    >>> logger.setLevel(logging.INFO)
+    >>> logger.addHandler(handler)
+
+Our safe reference returns None.
+
+    >>> pos = log.tell()
+    >>> refie.sfref is None
+    True
+
+Let's see what the log contains.
+
+    >>> log.seek(pos)
+    >>> print log.read()
+    Unresolved Reference for "Refie._sfref" set to None
+
+Accessing the stale property once again we will see it was reset to None::
+
+    >>> pos = log.tell()
+    >>> refie.sfref is None
+    True
+
+    >>> log.seek(pos)
+    >>> print log.read() == ''
+    True
+
+The property get set to None if the reference points to a dead object but only
+if the property is not required::
+
+    >>> class Requy(db.Model):
+    ...     sfref = SafeReferenceProperty(Yummy, collection_name='req_sfref_ref',
+    ...                                   required=True)
+
+    >>> refyummy1 = Yummy()
+    >>> ignore = refyummy1.put()
+
+    >>> requy = Requy(sfref = refyummy1)
+    >>> requyKey = requy.put()
+
+    >>> requy.sfref
+    <Yummy object at ...>
+
+    >>> refyummy1.delete()
+
+    >>> requy = db.get(requyKey)
+
+    >>> pos = log.tell()
+    >>> requy.sfref is None
+    True
+
+    >>> log.seek(pos)
+    >>> print log.read()
+    Unresolved Reference for "Requy._sfref" will remain because it is required

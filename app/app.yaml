@@ -1,0 +1,117 @@
+application: fatcatmap
+version: 1-alpha
+runtime: python
+api_version: 1
+
+default_expiration: 1m
+
+derived_file_type:
+- python_precompiled
+
+#### ===== Builtin SDK Includes
+builtins:
+- mapreduce: on
+- admin_redirect: on
+- appstats: on
+- datastore_admin: on
+- remote_api: on
+
+### ===== Custom Admin Pages
+admin_console:
+  pages:
+  - name: Datastore Admin
+    url: /_ah/datastore_admin
+
+#### ===== Inbound Services
+#inbound_services:
+#- xmpp_message
+#- mail
+
+#### ===== Handlers!
+handlers:
+
+# Basic static files
+- url: /(robots\.txt|favicon\.ico)
+  static_files: static/\1
+  upload: static/(.*)
+
+
+# Library/system mappings
+- url: /_ah/datastore_admin.*
+  script: $PYTHON_LIB/google/appengine/ext/datastore_admin/main.py
+  login: admin
+  
+- url: /_ah/mapreduce.*
+  script: $PYTHON_LIB/google/appengine/ext/mapreduce/main.py
+  login: admin  
+  
+- url: /_pc/remote_api
+  script: $PYTHON_LIB/google/appengine/ext/remote_api/handler.py
+  login: admin
+
+- url: /_pc/mapreduce(/.*)?
+  script: lib/mapreduce/main.py
+  login: admin
+  
+- url: /_pc/manage/.*
+  script: $PYTHON_LIB/google/appengine/ext/admin
+  login: admin
+  secure: always
+
+
+##### Asset mappings
+
+# Images (Static)
+- url: /assets/img/static
+  static_dir: assets/img/static
+
+# Images (Dynamic)
+- url: /assets/img/.*
+  script: assets/img/retrieve.py
+  
+# Style (Static Only)
+- url: /assets/style
+  static_dir: assets/style
+  mime_type: text/css
+  
+# Scripts (Static Only)
+- url: /assets/js
+  static_dir: assets/js
+  mime_type: text/javascript
+  
+# Generic (Static)
+- url: /assets/ext/static
+  static_dir: assets/ext/static
+  
+# Generic (Dynamic)
+- url: /assets/ext/.*
+  script: assets/ext/static/retrieve.py
+  
+- url: /_bootstrap_/.*
+  script: bootstrap.py
+  login: admin
+
+## Everything else goes to tipfy
+- url: /.*
+  script: main.py
+  secure: optional
+  auth_fail_action: redirect
+  
+  
+#### ===== Templates for error pages
+error_handlers:
+
+## Default Error Page
+- file: templates/core/errors/default.html
+
+## Over App Quota
+- error_code: over_quota
+  file: templates/core/errors/over_quota.html
+  
+## DoS (Denial of Service)
+- error_code: dos_api_denial
+  file: templates/core/errors/dos_api_denial.html
+  
+## Timeout (DeadlineExceededError)
+- error_code: timeout
+  file: templates/core/errors/timeout.html

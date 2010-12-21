@@ -1,0 +1,39 @@
+================================
+Tornado JSON-RPC Request Handler
+================================
+
+In order to provide a json-rpc entrypoint in tornado a dispatcher is
+needed.
+
+    >>> from lovely.jsonrpc import dispatcher
+    >>> demo = dispatcher.JSONRPCDispatcher()
+
+Let us register a simple method on demo1.
+
+    >>> def echo(s):
+    ...     return s
+
+    >>> demo.register_method(echo, 'echo')
+
+Now we create a tornado application. Note that we use the wsgi app of
+tornado for testing, but the initial intent to use this handler is to
+also allow async operations, which do not work in wsgi.
+
+    >>> from tornado.wsgi import WSGIApplication
+    >>> from lovely.jsonrpc.tornadohandler import JSONRPCRequestHandler
+    >>> app = WSGIApplication([
+    ...     (r"/demo", JSONRPCRequestHandler, dict(dispatcher=demo),)
+    ...     ])
+
+
+Let us create a testapp and a client.
+
+    >>> from webtest import TestApp
+    >>> from lovely.jsonrpc.testing import TestJSONRPCProxy
+
+    >>> app = TestApp(app)
+    >>> client = TestJSONRPCProxy('/demo', app)
+    >>> client.echo(1)
+    1
+
+TODO: asynchronous support.

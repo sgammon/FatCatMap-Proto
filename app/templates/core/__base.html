@@ -1,0 +1,32 @@
+<!-- FatCatMap -->
+<html>
+	
+	<head>
+		{% block prenorth %}{% endblock %}
+		{% include "core/__north.html" %}
+		{% block postnorth %}{% endblock %}
+		
+		<title>{% block title %}FatCatMap{% endblock %}</title>
+		
+	</head>
+	
+	<body{% if bgclass %} bgclass='{{ bgclass }}'{% endif %}>
+		
+		<div id='wrapper'>		
+		
+			<div id='content'>
+				{% block body %}
+				{% endblock %}
+			</div><!-- End content -->
+			
+						
+			{% block presouth %}{% endblock %}
+			{% include "core/__south.html" %}
+			{% block postsouth %}{% endblock %}
+			
+		<div class='clearboth'></div>
+		</div><!-- End wrapper -->
+		<div class='clearboth'></div>
+	</body>
+
+</html>
