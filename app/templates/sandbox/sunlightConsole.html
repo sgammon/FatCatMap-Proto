@@ -1,0 +1,59 @@
+{% extends "layouts/sandbox.html" %}
+
+{% block title %}FatCatMap: Sandbox - Sunlight API Console{% endblock %}
+
+{% block header %}Sandbox - Sunlight API Console{% endblock %}
+
+{% block postnorth %}
+  <script src='/_ah/channel/jsapi'></script>
+  <script type='text/javascript'>
+
+    // Add something to the logger area
+    function _addLoggerLine(prefix, text)
+    {
+        var line = '<b>'+prefix+': </b> '+text+'<br />';
+        $('#sandbox-log').append(line);
+    }
+
+    // Channel open/initiation function
+    function onChannelOpen()
+    {
+        _addLoggerLine('System','Sunlight worker channel opened.');
+    }
+
+    // When a channel receives a message...
+    function onChannelMessage(message)
+    {
+        _addLoggerLine('Worker', message.data)
+    }
+
+    // If the channel encounters an error...
+    function onChannelError()
+    {
+        alert('channel error!');
+    }
+
+    // Channel close/cleanup function
+    function onChannelClose()
+    {
+        _addLoggerLine('System','Sunlight worker channel closed.');
+    }
+
+
+    channel = new goog.appengine.Channel('{{ channel_token }}');
+    socket = channel.open();
+    socket.onopen = onChannelOpen;
+    socket.onmessage = onChannelMessage;
+    socket.onerror = onChannelError;
+    socket.onclose = onChannelClose;
+  </script>
+{% endblock %}
+
+{% block content %}
+<div id='sandbox_novis'>
+
+    <div id='sandbox-log'>
+    </div>
+
+</div>
+{% endblock %}

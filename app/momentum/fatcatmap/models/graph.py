@@ -6,15 +6,12 @@ from ProvidenceClarity.data.core.polymodel import PolyPro
 
 
 class Node(Model):
-
 	label = db.StringProperty()
 	
 	
 class Edge(Model):
-
 	nodes = db.ListProperty(db.Key)
 	
 
 class Graph(Model):
-	
 	name = db.StringProperty()

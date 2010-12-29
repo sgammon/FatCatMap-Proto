@@ -225,3 +225,16 @@ config['momentum.fatcatmap.workers.indexer'] = {
 	'autoqueue':True
 
 }
+
+## Services Config
+config['services.sunlight'] = {
+
+    'api_key':'5716fd8eb1ce418095fe402c7489281e'
+
+}
+
+config['services.opensecrets'] = {
+
+
+
+}

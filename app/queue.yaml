@@ -1,0 +1,5 @@
+queue:
+
+- name: sunlightlabs-worker
+  rate: 1/s
+  bucket_size: 1

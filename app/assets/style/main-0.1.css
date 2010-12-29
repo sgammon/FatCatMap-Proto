@@ -6,6 +6,11 @@ body
 	margin:0;
 }
 
+b
+{
+    font-weight:bold;
+}
+
 hr
 {
 	width:97%;
@@ -40,7 +45,8 @@ hr
 	margin-right:auto;
 	text-align:left;
 	color:black;
-	background:white;	
+	background:white;
+    overflow:scroll;
 }
 
 #header

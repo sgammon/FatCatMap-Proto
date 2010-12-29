@@ -77,7 +77,7 @@ class sunlight(object):
     @staticmethod
     def _apicall(func, params):
         if sunlight.apikey is None:
-            raise SunlightApiError('Missing sunlight apikey')
+            raise SunlightApiError('Missing sunlightlabs apikey')
 
         url = 'http://services.sunlightlabs.com/api/%s.json?apikey=%s&%s' % \
               (func, sunlight.apikey, urlencode(params))

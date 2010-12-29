@@ -31,4 +31,10 @@ def main():
 
 
 if __name__ == '__main__':
+
+    if 'lib' not in sys.path:
+        sys.path.insert(0, 'lib')
+    if 'distlib' not in sys.path:
+        sys.path.insert(1, 'distlib')
+
     main()

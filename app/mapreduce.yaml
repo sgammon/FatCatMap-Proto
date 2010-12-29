@@ -5,4 +5,4 @@ mapreduce:
     value: /
   mapper:
     input_reader: mapreduce.input_readers.BlobstoreLineInputReader
-    handler: momentum.fatcatmap.mappers.sunlight.Legislators
+    handler: momentum.fatcatmap.mappers.sunlightlabs.Legislators
