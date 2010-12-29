@@ -4,7 +4,8 @@ import logging
 
 from google.appengine.ext import db
 from google.appengine.api import datastore
-from ProvidenceClarity.data.core.model import ProvidenceClarityModel
+
+from ProvidenceClarity.data.core.model import Model
 from ProvidenceClarity.data.core.properties.polymodel import _ClassKeyProperty
 from ProvidenceClarity.data.core.properties.polymodel import _ModelPathProperty
 
@@ -18,20 +19,20 @@ _CLASS_KEY_PROPERTY = '_class_'
 _class_map = {}
 
 
-## +=+=+ Metaclass controlling the creation of Providence/Clarity polymodel objects.
+## +=+=+ Metaclass controlling the creation of Providence/Clarity PolyPro objects.
 class PolymorphicModel(db.PropertiedClass):
 
 	""" Populates properties like __root_class__ and __class_hierarchy__ and enforces logic about direct instantiation. """
 
 	def __init__(cls, name, bases, dct):
 			
-		if name == 'PolyModel':
+		if name == 'PolyPro':
 			super(PolymorphicModel, cls).__init__(name, bases, dct, map_kind=False)
 			return
 
-		elif PolyModel in bases:
+		elif PolyPro in bases:
 			if getattr(cls, '__class_hierarchy__', None):
-				raise db.ConfigurationError(('%s cannot derive from PolyModel as '
+				raise db.ConfigurationError(('%s cannot derive from PolyPro as '
 				'__class_hierarchy__ is already defined.') % cls.__name__)
 			cls.__class_hierarchy__ = [cls]
 			cls.__root_class__ = cls
@@ -41,7 +42,7 @@ class PolymorphicModel(db.PropertiedClass):
 			super(PolymorphicModel, cls).__init__(name, bases, dct, map_kind=False)
 
 			cls.__class_hierarchy__ = [c for c in reversed(cls.mro())
-				if issubclass(c, PolyModel) and c != PolyModel]
+				if issubclass(c, PolyPro) and c != PolyPro]
 
 			if cls.__class_hierarchy__[0] != cls.__root_class__:
 				raise db.ConfigurationError(
@@ -54,14 +55,14 @@ class PolymorphicModel(db.PropertiedClass):
 		
 			
 ## +=+=+ Customized polymorphic database model based on Google's PolyModel implementation.
-class PolyModel(Model):
+class PolyPro(Model):
 	"""
 	
 	Description: A modification to Model designed to introduce polymorphism,
 	allowing models to inherit properties and methods from other models.
 	Cannot be instantiated directly - designed only to be extended.
 	
-	Abstract: Once a model is created that extends PolyModel, other models
+	Abstract: Once a model is created that extends PolyPro, other models
 	can be created that extend the original. In Providence/Clarity, all
 	polymorphic types eventually extend the 'E' model (for "Entity").
 	
@@ -90,7 +91,7 @@ class PolyModel(Model):
 						| Senator |	 | Congressman |
 						-----------	 ---------------
 
-	When a PolyModel object is constructed, there are two special properties
+	When a PolyPro object is constructed, there are two special properties
 	that are automatically set: _class_key_ (list) and _class_path_ (str).
 	The class key describes the object's ancestry, and the class path stores
 	the python module path to the corresponding class. For example, let's
@@ -107,7 +108,7 @@ class PolyModel(Model):
 		print s._class_path_
 		>> ('data','entities','people','Senator')
 		
-	Since we store the class path along with the class key, PolyModel can
+	Since we store the class path along with the class key, PolyPro can
 	lazy-load the implementation class when an entity is pulled from the
 	datastore:
 	
@@ -129,18 +130,18 @@ class PolyModel(Model):
 
 	
 	def __new__(cls, *args, **kwds):
-		""" Prevents direct instantiation of PolyModel. """
-		if cls is PolyModel:
+		""" Prevents direct instantiation of PolyPro. """
+		if cls is PolyPro:
 			raise NotImplementedError() # raise NotImplemented
-		return super(PolyModel, cls).__new__(cls, *args, **kwds)
+		return super(PolyPro, cls).__new__(cls, *args, **kwds)
 		
 		
 	def __init__(self, *args, **kwargs):
 		""" Namespaces a given key_name with the kind name prefixed. """
 		
-		logging.info('Initiating new PolyModel object...')
+		logging.info('Initiating new PolyPro object...')
 		
-		# Only namespace keyname if entity is not a root polymodel type
+		# Only namespace keyname if entity is not a root PolyPro type
 		if len(self.class_key_as_list()) > 1:
 			
 			logging.info('Not a root Poly... namespacing keyname...')
@@ -160,15 +161,15 @@ class PolyModel(Model):
 					kwargs['key_name'] = self._getNamespacedKeyName(kwargs['key_name'])
 				
 		else:
-			logging.info('This is a root polymodel. No namespaced keyname then, moving on...')
+			logging.info('This is a root PolyPro. No namespaced keyname then, moving on...')
 				
-		super(PolyModel, self).__init__(*args, **kwargs)
+		super(PolyPro, self).__init__(*args, **kwargs)
 		
 
 	@classmethod
 	def kind(cls):
 		""" Always return name of root class. """		 
-		if cls.__name__ == 'PolyModel': return cls.__name__
+		if cls.__name__ == 'PolyPro': return cls.__name__
 		else: return cls.class_key()[0]
 		
 
@@ -254,7 +255,7 @@ class PolyModel(Model):
 				raise db.KindError('No implementation for class \'%s\'' % (key,))
 			
 			return poly_class.from_entity(entity)
-		return super(SPIPolyModel, cls).from_entity(entity)
+		return super(PolyPro, cls).from_entity(entity)
 		
 
 	@classmethod
@@ -269,8 +270,8 @@ class PolyModel(Model):
 
 	@classmethod
 	def all(cls, **kwds):
-		query = super(PolyModel, cls).all(**kwds)
-		if cls != PolyModel:
+		query = super(PolyPro, cls).all(**kwds)
+		if cls != PolyPro:
 			query.filter(_CLASS_KEY_PROPERTY + ' =', cls.class_name())
 		return query
 
@@ -278,7 +279,7 @@ class PolyModel(Model):
 	@classmethod
 	def gql(cls, query_string, *args, **kwds):
 		if cls == cls.__root_class__:
-			return super(PolyModel, cls).gql(query_string, *args, **kwds)
+			return super(PolyPro, cls).gql(query_string, *args, **kwds)
 		else:
 			from google.appengine.ext import gql
 			

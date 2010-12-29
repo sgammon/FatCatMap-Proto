@@ -1,57 +1,126 @@
-{% extends "core/__base.html" %}
+{% extends "layouts/sandbox.html" %}
 
-{% block title %}FatCatMap: Sandbox{% endblock %}
+{% block title %}FatCatMap: Sandbox Grapher{% endblock %}
+
+{% block header %}Sandbox Grapher{% endblock %}
 
 {% block postnorth %}
-    <script type="text/javascript" src="http://vis.stanford.edu/protovis/ex/miserables.js"></script>
+	<script type="text/javascript" src='/assets/js/simpleGraph.js'></script>
+	<script type="text/javascript" src='/sandbox/data.js'></script>
+	
+	<script type='text/javascript'>
+
+		$(document).ready(function() {
+
+			$('#controlsAccordion').accordion();
+			$('#renderButton').button();
+			$('#progressBar').progressbar({value:37});	
+			
+		});
+
+	</script>
 {% endblock %}
 
-{% block body %}
-	<div id='container'>
-		
-		<div id='header'>
-			<p>FatCatMap: Sandbox</p>
-		</div>
-		
-		<div id='viz_content'>
-			
-		    <script type="text/javascript+protovis">
+{% block content %}
+<div id='sandbox_viz_content'>
 
-				var w = $("#viz_content").width(),
-				    h = $("#viz_content").height(),
-				    colors = pv.Colors.category19();
+    <script type="text/javascript+protovis">
 
-				var vis = new pv.Panel(document.getElementById('viz_content'))
-				    .width(w)
-				    .height(h)
-				    .fillStyle("white")
-				    .event("mousedown", pv.Behavior.pan())
-				    .event("mousewheel", pv.Behavior.zoom());
+		// 1: Create visualizer panel
+		var w = $("#sandbox_viz_content").width(),
+		    h = $("#sandbox_viz_content").height(),
+		    colors = pv.Colors.category19();
 
-				var force = vis.add(pv.Layout.Force)
-				    .nodes(miserables.nodes)
-				    .links(miserables.links);
+		var vis = new pv.Panel(document.getElementById('sandbox_viz_content'))
+		    .width(w)
+		    .height(h)
+		    .fillStyle("white")
+		    .event("mousedown", pv.Behavior.pan())
+		    .event("mousewheel", pv.Behavior.zoom());
 
-				force.link.add(pv.Line);
+		// 2: Add force-driven layout to visualizer panel
+		var force = vis.add(pv.Layout.Force)
+			    .nodes(graphData.nodes)
+			    .links(graphData.links);
 
-				force.node.add(pv.Dot)
-				    .size(function(d) (d.linkDegree + 4) * Math.pow(this.scale, -1.5))
-				    .fillStyle(function(d) d.fix ? "brown" : colors(d.group))
-				    .strokeStyle(function() this.fillStyle().darker())
-				    .lineWidth(1)
-				    .title(function(d) d.nodeName)
-				    .event("mousedown", pv.Behavior.drag())
-				    .event("drag", force);
+		force.bound = function() true;
+	
 
-				vis.render();
+		// 3: Adjust force constants for layout
+		force.chargeConstant(function() -110);
+		force.chargeMaxDistance(function() 500);
+		force.chargeMinDistance(function() 2);
+		force.chargeTheta(function() 0.9);		
+		force.dragConstant(function() 0.1);
+		force.springConstant(function() 0.1);
+		force.springDamping(function() 0.3);
+		force.springLength(function () 140);
 
-		    </script>
-			
-		</div>
-		
-		<div id='footer'>
-			<p>Copyright &copy;2010, Sam Gammon &lt;<a href="mailto:s@providenceclarity.com" alt="mailto: sam gammon">sg@samgammon.com</a>&gt;</p>
-		</div>
-		
+		// 4: Render line
+		line = force.link.add(pv.Line);
+
+		// 5: Add node box
+		box = force.node.add(pv.Bar);
+		box.fillStyle(function() 'white');
+		box.cursor(function() 'pointer');
+		box.event('mousedown', pv.Behavior.drag());
+		box.event('drag', force);
+		box.event('click', function (d) {drawContextPane(d);})
+		box.width(function(d) {return 70;});
+		box.height(function(d) {return 20;});
+
+		// 6: Add node label
+		anchor = box.anchor('bottom');
+		label = anchor.extend(box).add(pv.Label)
+		label.text(function (d) {return d.nodeName;});
+		label.font(function(d) {return '12px "Helvetica Neue", Helvetica, "Arial Unicode MS", Arial, sans-serif';});
+	
+		// 7: Render
+		vis.render();
+	</script>
+
+</div>
+
+<div id='sandbox_viz_sidebar'>
+	<div class='sandbox_viz_sidebar_content'>
+		<h1>Context Pane</h1>
+		<hr />
+		<br />
+		<ul>
+			<li>Kind: <span id='contextPane_kind'></span></li>
+			<li>Parent: <span id='contextPane_parent'></span></li>
+			<li>ID or Name: <span id='contextPane_idorname'></li>
+		</ul>
 	</div>
+	<div class='spacer'></div>
+	<div class='sandbox_viz_sidebar_content'>
+		<h1>Graph Controls</h1>
+		<hr />
+			<div id='controlsAccordion'>
+
+				<h2><a href='#'>Data Source</a></h2>
+				<ul id='dataSourceContent' class='foldableList'>
+					<li>Select Graph: <input type='text' id='springLength' value='sample1' /></li>
+				</ul>
+				
+				<h2><a href='#'>Force Physics</a></h2>
+				<ul id='forcesContent' class='foldableList'>
+					<li>&alpha; Constant: <input type='text' id='chargeConstantInput' class='forceInput' value='-110' /></li>
+					<li>&alpha; Min: <input type='text' id='chargeMinDistance' class='forceInput' value='2' /></li>
+					<li>&alpha; Max: <input type='text' id='chargeMaxDistance' class='forceInput' value='500' /></li>
+					<li>&alpha; Theta(&theta;): <input type='text' id='chargeTheta' class='forceInput' value='0.9' /></li>
+
+					<li>Drag Constant: <input type='text' id='dragConstant' class='forceInput' value='0.1' /></li>
+
+					<li>&beta; Constant: <input type='text' id='springConstant' class='forceInput' value='0.1' /></li>
+					<li>&beta; Damping: <input type='text' id='springDamping' class='forceInput' value='0.3' /></li>
+					<li>&beta; Rest Length: <input type='text' id='springLength' class='forceInput' value='140' /></li>
+				</ul>
+			</div>
+
+			<button type='button' id='renderButton' class='margincenter' onclick='force.reset();vis.render();'>Render Graph</button>				
+	</div>				
+</div>
+
+<div class='clearboth'></div>
 {% endblock %}

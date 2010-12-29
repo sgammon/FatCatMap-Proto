@@ -1,11 +1,9 @@
 from google.appengine.ext import db
 
 
-class ProvidenceClarityModel(db.Model):
+class Model(db.Model):
 
     """ Root, master, non-polymorphic data model. Everything lives under this class. """
-
-    _PC_MODEL_BRANCH = _PC_MODEL_BRANCH_BASE
     
     def _getModelPath(self,seperator=None):
 

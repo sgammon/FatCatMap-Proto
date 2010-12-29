@@ -1,0 +1,40 @@
+{% extends "core/__base.html" %}
+
+
+{% block body %}
+	<div id='header'>
+		<div id='sandbox_heading' class='floatleft'>
+			<p>FatCatMap: {% block header %}Sandbox{% endblock %}</p>
+		</div>
+	
+		<div id='sandbox_navigation' class='floatleft'>
+			<p><a href="{{ link('sandbox-add-data') }}">Manage Data</a> - <a href="/_ah/admin">Console</a></p>
+		</div>
+	
+		<div id='userSpace' class='floatright'>
+			<p>{{ sys.security.user.nickname() }} | <a href="{{ sys.api.users.create_logout_url('/') }}">Log Out</a></p>
+		</div>
+	
+		<div class='clearboth'></div>
+	</div>
+	
+	<div id='sandbox_content'>
+		{% block content %}
+		{% endblock %}
+	</div>
+	<div class='clearboth'></div>	
+	
+	<div id='footer'>
+		<div class='floatleft'>
+			<div id='progressBar'></div>
+		</div>
+		
+		<div class='floatright'>
+			<p>Copyright &copy;2010, Sam Gammon &lt;<a href="mailto:s@providenceclarity.com" alt="mailto: sam gammon">sg@samgammon.com</a>&gt;</p>
+		</div>
+		
+		<div class='clearboth'></div>
+	</div>
+	
+	
+{% endblock %}

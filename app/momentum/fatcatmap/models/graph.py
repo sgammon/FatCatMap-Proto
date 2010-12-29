@@ -1,22 +1,20 @@
 from google.appengine.ext import db
 
+from ProvidenceClarity.data.core.model import Model
+from ProvidenceClarity.data.core.polymodel import PolyPro
 
 
-class Node(ProvidenceClarityModel):
-	pass
-	
-	
-class Edge(ProvidenceClarityModel):
-	pass
 
+class Node(Model):
+
+	label = db.StringProperty()
 	
-class Connection(ProvidenceClarityPolyModel):
-	pass
+	
+class Edge(Model):
+
+	nodes = db.ListProperty(db.Key)
 	
 
-class Graph(ProvidenceClarityModel):
-	pass
+class Graph(Model):
 	
-	
-class GraphEntry(ProvidenceClarityModel):
-	pass
+	name = db.StringProperty()

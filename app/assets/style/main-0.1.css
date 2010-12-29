@@ -6,30 +6,158 @@ body
 	margin:0;
 }
 
-#container
+hr
 {
-	margin-left:auto;
-	margin-right:auto;
-	width:99%;
-	height:99%;
-	text-align:center;
+	width:97%;
 }
 
-#viz_content
+.clearboth {clear:both;}
+.margincenter {margin-left:auto;margin-right:auto;}
+.floatleft {float:left;}
+.floatright {float:right;}
+
+#wrapper
 {
-    height: 89%;
-	background:white;
-    width: 98%;
+	height:98%;
+	width:98%;
 	margin-left:auto;
 	margin-right:auto;
-	text-align:center;
-}		
+}
+
+#content
+{
+	margin-left:auto;
+	margin-right:auto;
+	width:97%;
+	height:99%;
+}
+
+#sandbox_content
+{
+    height: 89%;
+    width: 100%;
+	margin-left:auto;
+	margin-right:auto;
+	text-align:left;
+	color:black;
+	background:white;	
+}
 
 #header
 {
-	padding-top:1px;
-	padding-left:14px;
 	text-align:left;
+	color:white;
+}
+
+#sandbox_viz_content
+{
+    height: 100%;
+    width: 80%;
+	float:left;
+}
+
+#sandbox_viz_sidebar
+{
+	width:20%;
+	background:#111;
+	height:100%;
+	float:right;
+	overflow:hidden;
+}
+
+#sandbox_heading
+{
+	font-size:20px;
+}
+
+#sandbox_novis
+{
+	padding:10px;
+	width:100%;
+	height:100%;
+}
+
+#sandbox_navigation
+{
+	margin-left:20px;
+	font-size:13px;
+	margin-top:10px;
+	border-left:1px solid white;
+	padding-left:20px;
+}
+
+#userSpace
+{
+	font-size:13px;
+	margin-top:10px;
+}
+
+.sandbox_viz_sidebar_content
+{
+	color:white;
+	width:100%;
+	padding:15px;
+}
+
+#sandbox_viz_sidebar div.spacer
+{
+	height:5%;
+}
+
+#sandbox_viz_sidebar div h1
+{
+	font:300 20px "Helvetica Neue", Helvetica, "Arial Unicode MS", Arial, sans-serif;
+}
+
+#sandbox_viz_sidebar div h2
+{
+	font:300 15px "Helvetica Neue", Helvetica, "Arial Unicode MS", Arial, sans-serif;
+}
+
+#sandbox_viz_sidebar hr
+{
+	width:89%;
+	margin-left:0;
+}
+
+#sandbox_viz_sidebar ul
+{
+	list-style:none;
+	padding:0;
+	margin:0;
+}
+
+#sandbox_viz_sidebar ul li
+{
+	font-size:13px;
+	display:block;
+	text-indent:0;
+	padding:0;
+	padding-bottom:10px;
+	margin:0;
+}
+
+#sandbox_viz_sidebar ul.foldableList
+{
+	padding:10px;
+}
+
+#sandbox_viz_sidebar ul li ul.foldableList li
+{
+	padding-bottom:10px;
+	font-size:13px;
+}
+
+#controlsAccordion
+{
+	max-width:90%;
+	background:transparent;
+}
+
+input.forceInput
+{
+	margin-left:10px;
+	width:40px;
 }
 
 #footer
@@ -57,4 +185,17 @@ body
 p a
 {
 	color:#888;
+}
+
+#renderButton
+{
+	margin-top:20px;
+	font-size:17px;
+}
+
+#progressBar
+{
+	margin-top:1em;
+	width:300px;
+	height:10px;
 }

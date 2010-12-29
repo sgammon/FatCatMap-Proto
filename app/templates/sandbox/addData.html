@@ -1,0 +1,57 @@
+{% extends "layouts/sandbox.html" %}
+
+{% block title %}FatCatMap: Sandbox - Add Data{% endblock %}
+
+{% block header %}Sandbox - Add Data{% endblock %}
+
+{% block content %}
+<div id='sandbox_novis'>
+	
+	{% if injected_data %}
+		<hr />
+		<h2>Injected Data:</h2>
+	
+		{% if graphs %}
+			<b>Graphs:</b>
+			<ul>
+				{% for graph in graphs %}
+					<li>Graph: {{ graph.kind() }}, ID or Name: {{ graph.id_or_name() }}</li>
+				{% endfor %}
+			</ul>
+		{% else %}
+			<br /><b>No graphs.</b><br /><br />
+		{% endif %}
+	
+		{% if nodes %}
+			<b>Nodes:</b>
+			<ul>
+				{% for node in nodes %}
+					<li>Parent: {{ node.parent() }}, ID or Name: {{ node.id_or_name() }}</li>
+				{% endfor %}
+			</ul>
+		{% else %}
+			<br /><b>No nodes.</b><br /><br />
+		{% endif %}
+	
+		<br /><br />
+		{% if edges %}
+			<b>Edges:</b>
+			<ul>
+				{% for edge in edges %}
+					<li>Parent: {{ edge.parent() }}, ID or Name: {{ edge.id_or_name() }}</li>
+				{% endfor %}
+			</ul>
+		{% else %}
+			<br /><b>No edges.</b>
+		{% endif %}
+	
+	{% else %}
+	<h2>Data Templates:</h2>
+	<ul>
+		<li><a href="">Simple Graph (10 nodes, 9 edges)</a></li>
+		<li><a href="">Sunlight: Legislators</a></li>
+	</ul>
+	{% endif %}
+
+</div>
+{% endblock %}

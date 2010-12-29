@@ -1,0 +1,2 @@
+
+var graphData = {{ data }};

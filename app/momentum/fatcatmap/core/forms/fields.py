@@ -6,7 +6,7 @@ from momentum.fatcatmap.core.forms.widgets import BoxWidget
 
 _unset_value = None
 
-class SPIExtFormField(f.Field):
+class FCMExtFormField(f.Field):
     """
     Encapsulate a form as a field in another form.
 
@@ -19,7 +19,7 @@ class SPIExtFormField(f.Field):
     widget = BoxWidget()
 
     def __init__(self, form_class, label=u'', validators=None, separator='-', **kwargs):
-        super(SPIExtFormField, self).__init__(label, validators, **kwargs)
+        super(FCMExtFormField, self).__init__(label, validators, **kwargs)
         self.form_class = form_class
         self.separator = separator
         self._obj = None
@@ -75,7 +75,7 @@ class SPIExtFormField(f.Field):
         return self.form.errors
 
 
-class SPIReferencePropertyField(f.SelectFieldBase):
+class FCMReferencePropertyField(f.SelectFieldBase):
 	"""
 	A field for ``db.ReferenceProperty``. The list items are rendered in a
 	select.
@@ -86,7 +86,7 @@ class SPIReferencePropertyField(f.SelectFieldBase):
 
 	def __init__(self, label=u'', validators=None, reference_class=None,
 				label_attr=None, choices=False, select_instruction_text=None, fetch_limit=50, allow_blank=False, blank_text=u'', **kwargs):
-		super(SPIReferencePropertyField, self).__init__(label, validators,
+		super(FCMReferencePropertyField, self).__init__(label, validators,
 													**kwargs)
 		self.label_attr = label_attr
 		self.allow_blank = allow_blank
@@ -150,7 +150,7 @@ class SPIReferencePropertyField(f.SelectFieldBase):
 					raise ValueError(self.gettext(u'Not a valid choice'))
 
 
-class SPIStringListPropertyField(f.TextAreaField):
+class FCMStringListPropertyField(f.TextAreaField):
 	"""
 	A field for ``db.StringListProperty``. The list items are rendered in a
 	textarea.

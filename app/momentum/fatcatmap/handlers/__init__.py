@@ -8,6 +8,7 @@ import simplejson as json
 ### App Engine Imports
 from google.appengine.ext import db
 from google.appengine.api import quota
+from google.appengine.api import users
 from google.appengine.api import memcache
 from google.appengine.ext import blobstore
 
@@ -52,13 +53,13 @@ class BaseFCMRequestHandler(RequestHandler):
 	pass
 	
 	
-class FCMRequestHandler(BaseFCMRequestHandler, FlashMixin, SessionMixin, MessagesMixin, SecureCookieMixin, Jinja2Mixin):
+class FCMRequestHandler(BaseFCMRequestHandler, AppEngineAuthMixin, FlashMixin, SessionMixin, MessagesMixin, SecureCookieMixin, Jinja2Mixin):
 
 	''' Parent class to all request handlers. '''
 
 	## Set middleware and universal dependencies
-	middleware = [SessionMiddleware]
 	universal_dependencies = ['jQuery','main','social']
+	middleware = [SessionMiddleware, AdminRequiredMiddleware]
 
 	## Map some useful variables
 	config = config
@@ -174,6 +175,18 @@ class FCMRequestHandler(BaseFCMRequestHandler, FlashMixin, SessionMixin, Message
 		# Generate 'sys' variable
 		sys = {
 
+			'api':{
+			
+				'users':users,
+				'memcache':memcache
+			
+			},
+			'security':{
+			
+				'user':users.get_current_user(),
+				'is_admin':users.is_current_user_admin()
+			
+			},
 			'session':self.session,
 			'request':self.request,
 			'env':os.environ,
@@ -209,7 +222,7 @@ class FCMRequestHandler(BaseFCMRequestHandler, FlashMixin, SessionMixin, Message
 
 		# Add sys context, return rendered Jinja2 template
 
-		return self.render_response(template, sys=sys, tpl=tpl, **kwargs)	
+		return self.render_response(template, sys=sys, tpl=tpl, link=self.url_for, **kwargs)	
 
 
 class FCMAdminRequestHandler(FCMRequestHandler):

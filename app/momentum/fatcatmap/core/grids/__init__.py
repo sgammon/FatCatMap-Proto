@@ -1,7 +1,7 @@
 from tipfy import url_for
 
 
-class SPIDataGrid(object):
+class FCMDataGrid(object):
 
 	_endpoint = None
 	_method = None
@@ -166,7 +166,7 @@ def model_fields_for_grid(model, exclude=None, only=None):
 def get_model_grid(model, endpoint=None, method=None, exclude=None, only=None, **kwargs):
 	
 	# Generate form class
-	f = type(model.kind() + 'Grid', (SPIDataGrid,), {})()
+	f = type(model.kind() + 'Grid', (FCMDataGrid,), {})()
 	f.set_columns(model_fields_for_grid(model, exclude=exclude, only=only))
 	
 	if len(kwargs) > 0:

@@ -8,8 +8,8 @@ from wtforms import validators
 
 from wtforms.ext.appengine.fields import GeoPtPropertyField
 
-from momentum.fatcatmap.core.forms.fields import SPIReferencePropertyField
-from momentum.fatcatmap.core.forms.fields import SPIStringListPropertyField
+from momentum.fatcatmap.core.forms.fields import FCMReferencePropertyField
+from momentum.fatcatmap.core.forms.fields import FCMStringListPropertyField
 
 def get_TextField(kwargs):
 	"""
@@ -90,13 +90,13 @@ def convert_ListProperty(model, prop, kwargs):
 
 def convert_StringListProperty(model, prop, kwargs):
 	"""Returns a form field for a ``db.StringListProperty``."""
-	return SPIStringListPropertyField(**kwargs)
+	return FCMStringListPropertyField(**kwargs)
 
 
 def convert_ReferenceProperty(model, prop, kwargs):
 	"""Returns a form field for a ``db.ReferenceProperty``."""
 	kwargs['reference_class'] = prop.reference_class
-	return SPIReferencePropertyField(**kwargs)
+	return FCMReferencePropertyField(**kwargs)
 
 
 def convert_SelfReferenceProperty(model, prop, kwargs):
@@ -162,7 +162,7 @@ def convert_RatingProperty(model, prop, kwargs):
 	return f.IntegerField(**kwargs)
 
 
-class SPIModelConverter(object):
+class FCMModelConverter(object):
 	"""
 	Converts properties from a ``db.Model`` class to form fields.
 
@@ -278,7 +278,7 @@ class SPIModelConverter(object):
 				return converter(model, prop, kwargs)
 				
 
-class SPIForm(Form):
+class FCMForm(Form):
 
 	_action = None
 	_method = 'post'
@@ -317,7 +317,7 @@ class SPIForm(Form):
 		
 def model_fields(model, only=None, exclude=None, field_args=None, converter=None):
 
-	converter = converter or SPIModelConverter()
+	converter = converter or FCMModelConverter()
 	field_args = field_args or {}
 
 	# Get the field names we want to include or exclude, starting with the
@@ -351,9 +351,9 @@ def model_fields(model, only=None, exclude=None, field_args=None, converter=None
 
 				ext_form_class = getattr(__import__('.'.join(['wirestone','spi','forms']+ext_form_path.split('.')[0:-1]), globals(), locals(), [ext_form_path.split('.')[-1]]), ext_form_path.split('.')[-1])
 
-				from momentum.fatcatmap.core.forms.fields import SPIExtFormField
+				from momentum.fatcatmap.core.forms.fields import FCMExtFormField
 
-				field_dict[form_field_name] = SPIExtFormField(ext_form_class, field_args.get(form_field))
+				field_dict[form_field_name] = FCMExtFormField(ext_form_class, field_args.get(form_field))
 
 			else:
 				field = converter.convert(model, props[form_field], field_args.get(form_field))
@@ -374,7 +374,7 @@ def get_model_form(model, action=None, method='post', request=None, exclude_over
 	f_cfg = model._get_form_config()
 	
 	# Generate form class
-	f = type(model.kind() + 'Form', (SPIForm,), model_fields(model, exclude=exclude_override or f_cfg['exclude'], only=only_override or f_cfg['only'], field_args=field_args_override or f_cfg['field_args']))
+	f = type(model.kind() + 'Form', (FCMForm,), model_fields(model, exclude=exclude_override or f_cfg['exclude'], only=only_override or f_cfg['only'], field_args=field_args_override or f_cfg['field_args']))
 	
 	if request is not None and action is not None and method is not None:
 		f = f(request, **kwargs)

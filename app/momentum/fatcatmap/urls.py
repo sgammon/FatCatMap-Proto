@@ -19,8 +19,11 @@ def get_rules(app):
     :return:
         A list of class:`tipfy.Rule` instances.
     """
+
     rules = [
-        Rule('/', endpoint='landing', handler='momentum.fatcatmap.handlers.dev.SandboxIndex')
+        Rule('/', endpoint='sandbox-index', handler='momentum.fatcatmap.handlers.dev.SandboxIndex'),
+        Rule('/sandbox/data.js', endpoint='sandbox-data', handler='momentum.fatcatmap.handlers.dev.SandboxGraphQuery'),
+        Rule('/sandbox/manage_data', endpoint='sandbox-add-data', handler='momentum.fatcatmap.handlers.dev.SandboxAddData'),
     ]
 
     return rules

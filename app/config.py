@@ -55,7 +55,7 @@ config['tipfy.ext.session'] = {
 
 # Jinja2 Config
 config['tipfy.ext.jinja2'] = {
-    'engine_factory': 'momentum.fatcatmap.core.output.fcmLoaderFactory'  ## Custom loader mapping with caching + stats + tracking features
+   # 'engine_factory': 'momentum.fatcatmap.core.output.fcmLoaderFactory'  ## Custom loader mapping with caching + stats + tracking features
 }
 
 

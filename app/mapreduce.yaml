@@ -1,0 +1,8 @@
+mapreduce:
+- name: Sunlight: Legislators
+  params:
+  - name: done_callback
+    value: /
+  mapper:
+    input_reader: mapreduce.input_readers.BlobstoreLineInputReader
+    handler: momentum.fatcatmap.mappers.sunlight.Legislators
