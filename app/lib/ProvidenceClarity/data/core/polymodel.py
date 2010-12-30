@@ -137,32 +137,7 @@ class PolyPro(Model):
 		
 		
 	def __init__(self, *args, **kwargs):
-		""" Namespaces a given key_name with the kind name prefixed. """
-		
-		logging.info('Initiating new PolyPro object...')
-		
-		# Only namespace keyname if entity is not a root PolyPro type
-		if len(self.class_key_as_list()) > 1:
-			
-			logging.info('Not a root Poly... namespacing keyname...')
-			
-			if '_derived_key_name' in kwargs and kwargs['_derived_key_name'] != True:
-
-				logging.info('No derived key to take from.')
-
-				if 'key_name' in kwargs:
-
-					logging.info('Derived: '+str(self._getNamespacedKeyName(kwargs['key_name'])))
-					kwargs['key_name'] = self._getNamespacedKeyName(kwargs['key_name'])
-					
-			else:
-				if 'key_name' in kwargs:
-					logging.info('Derived: '+str(self._getNamespacedKeyName(kwargs['key_name'])))
-					kwargs['key_name'] = self._getNamespacedKeyName(kwargs['key_name'])
-				
-		else:
-			logging.info('This is a root PolyPro. No namespaced keyname then, moving on...')
-				
+		""" Initiates the PolyPro object. """
 		super(PolyPro, self).__init__(*args, **kwargs)
 		
 

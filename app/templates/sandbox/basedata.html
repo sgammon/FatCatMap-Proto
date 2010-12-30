@@ -1,0 +1,20 @@
+{% extends "layouts/sandbox.html" %}
+
+{% block title %}FatCatMap: Sandbox - Base Data{% endblock %}
+
+{% block header %}Sandbox - Base Data{% endblock %}
+
+{% block content %}
+<div id='sandbox_novis'>
+
+	{% if result %}
+
+    <b>Results:</b>
+        <ul>
+            {{ result }}
+        </ul>
+
+	{% endif %}
+
+</div>
+{% endblock %}

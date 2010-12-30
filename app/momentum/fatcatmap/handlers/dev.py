@@ -54,7 +54,7 @@ class SandboxProcedure(FCMRequestHandler):
                 edges.append(Edge(g, key_name='nine', nodes=[four, five]))
                 edge_keys = db.put(edges)
 
-                return self.render('sandbox/addData.html', nodes=node_keys, edges=edge_keys, graphs=g)
+                return self.render('sandbox/addData.html', injected_data=True, nodes=node_keys, edges=edge_keys, graphs=[g])
 
             elif procedure == 'sunlight':
                 token = channel.create_channel('admin-sandbox-'+os.environ['REMOTE_ADDR'])
@@ -63,6 +63,20 @@ class SandboxProcedure(FCMRequestHandler):
                 t.add('sunlightlabs-worker')
 
                 return self.render('sandbox/sunlightConsole.html', channel_token=token)
+
+            elif procedure == 'basedata':
+
+                from momentum.fatcatmap.dev.default_data import all_functions
+
+                proc_result = []
+                for fxn in all_functions:
+
+                   resulting_keys = fxn()
+                   proc_result.append('Successfully ran function '+str(fxn)+' and stored resulting '+str(len(resulting_keys))+' keys.')
+
+
+                return self.render('sandbox/basedata.html', result='<li>'+'</li><li>'.join(proc_result)+'</li>')
+
         return self.response('<b>Procedure: '+str(procedure)+'</b>')
 
 
