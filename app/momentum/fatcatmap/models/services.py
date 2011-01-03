@@ -17,6 +17,7 @@ class ExtServiceKey(Model):
     name = db.StringProperty()
     value = db.StringProperty()
     service = db.ReferenceProperty(ExtService, collection_name='keys')
+    last_used = db.DateTimeProperty()
     global_uses = db.IntegerProperty()
     enforce_limits = db.BooleanProperty()
     global_usage_limit = db.IntegerProperty()
@@ -34,7 +35,7 @@ class ExtInteraction(PolyPro):
 
 #### ==== External ID Models ==== ####
 class ExtID(PolyPro):
-    name = db.StringProperty()
+    name = db.StringProperty(default=None)
     value = db.StringProperty()
     link = db.LinkProperty()
     service = db.ReferenceProperty(ExtService, collection_name='consumed_objects')

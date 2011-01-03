@@ -1,28 +1,82 @@
 from google.appengine.ext import db
 
 
+def add_graph_artifact_types():
+
+    from momentum.fatcatmap.models.graph import NodeType
+
+    models = []
+    models.append(NodeType(key_name='legislator', name='Legislator', native_impl_class=['momentum','fatcatmap','models','sunlight','Legislator']))
+    models.append(NodeType(key_name='contributor', name='Contributor', native_impl_class=['momentum','fatcatmap','models','opensecrets','CampaignContributor']))
+
+    return db.put(models)
+
+
 def add_services():
 
     from momentum.fatcatmap.models.services import ExtService
     from momentum.fatcatmap.models.services import ExtServiceKey
 
+    ## Sunlight Labs
     sunlight = ExtService(key_name='sunlight')
     sunlight.name = 'Sunlight Labs'
     sunlight.description = 'Non-profit providing data about legislators, committees and committee memberships, and districts.'
     sunlight.homepage = 'http://sunlightlabs.com'
     sunlight.put()
 
+    ## OpenSecrets
     opensecrets = ExtService(key_name='opensecrets')
     opensecrets.name = 'CRP OpenSecrets'
     opensecrets.description = 'Non-profit providing data about contributions, lobbying, and spending.'
     opensecrets.homepage = 'http://opensecrets.org'
     opensecrets.put()
 
+    ## Sunlight/OpenSecrets Keys
     models = []
     models.append(ExtServiceKey(sunlight, key_name='s@providenceclarity.com', name='s@providenceclarity.com', value='5716fd8eb1ce418095fe402c7489281e', enforce_limits=False))
     models.append(ExtServiceKey(opensecrets, key_name='s@providenceclarity.com', name='s@providenceclarity.com', value='254615061689494a6ef579d65d08fb70', enforce_limits=False))
 
+    ## Other Political Services
+    models.append(ExtService(key_name='bioguide', name='BioGuide'))
+    models.append(ExtService(key_name='votesmart', name='VoteSmart'))
+    models.append(ExtService(key_name='fec', name='Federal Elections Commission'))
+    models.append(ExtService(key_name='govtrack', name='Govtrack'))
+    models.append(ExtService(key_name='eventful', name='Eventful'))
+    models.append(ExtService(key_name='congresspedia', name='Congresspedia'))
+    models.append(ExtService(key_name='twitter', name='Twitter'))
+    models.append(ExtService(key_name='youtube', name='YouTube'))
+    models.append(ExtService(key_name='facebook', name='Facebook'))
+    models.append(ExtService(key_name='freebase', name='Freebase'))
+    models.append(ExtService(key_name='wikipedia', name='Wikipedia'))
+    models.append(ExtService(key_name='opencalais', name='OpenCalais'))
+    models.append(ExtService(key_name='googlenews', name='Google News'))
+
     return db.put(models)+[sunlight, opensecrets]
+
+
+
+def add_data_engines():
+
+    from momentum.fatcatmap.models.data import ServiceWorker
+    from momentum.fatcatmap.models.data import WorkerMethod
+    from momentum.fatcatmap.models.services import ExtService
+    from momentum.fatcatmap.models.data import ServicePipeline
+
+    sunlight_service = ExtService.get_by_key_name('sunlight')
+    opensecrets_service = ExtService.get_by_key_name('opensecrets')
+
+    sunlight = ServiceWorker(key_name='sunlight', name='Sunlight Labs', worker_endpoint='worker-sunlight', service=sunlight_service, enabled=True)
+    opensecrets = ServiceWorker(key_name='opensecrets', name='CRP OpenSecrets', worker_endpoint='worker-opensecrets', service=opensecrets_service, enabled=False)
+
+    models = []
+    models.append(WorkerMethod(sunlight, key_name='getLegislator', name='getLegislator', service=sunlight))
+    models.append(WorkerMethod(sunlight, key_name='getLegislators', name='getLegislators', service=sunlight))
+
+    models.append(ServicePipeline(sunlight_service, key_name='Legislator', name='Get Single Legislator', async=True, service=sunlight_service, enabled=True))
+    models.append(ServicePipeline(sunlight_service, key_name='Legislators', name='Get Legislators List', service=sunlight_service, enabled=True))
+
+    return db.put(models)+[sunlight, opensecrets]
+
 
 
 def add_political_parties():
@@ -37,6 +91,19 @@ def add_political_parties():
     return db.put(models)
 
 
+def add_election_cycles():
+
+    from momentum.fatcatmap.models.politics import ElectionCycle
+
+    models = []
+    models.append(ElectionCycle(key_name='2008', presidential_election=True))
+    models.append(ElectionCycle(key_name='2010'))
+    models.append(ElectionCycle(key_name='2012', presidential_election=True))
+
+    return db.put(models)
+
+
+
 def add_federal_legislature():
 
     from momentum.fatcatmap.models.politics import Legislature
@@ -45,8 +112,8 @@ def add_federal_legislature():
 
     models = []
     congress = Legislature(key_name='us_congress',name='United States Congress', short_name='Congress', total_members=535).put()
-    models.append(LowerLegislativeHouse(congress, legislature=congress, title_abbr='Rep', key_name='lower_house', name='United States House of Representatives', short_name='House of Representatives', total_members=435))
-    models.append(LowerLegislativeHouse(congress, legislature=congress, title_abbr='Sen', key_name='upper_house', name='United States Senate', short_name='Senate', total_members=100))
+    models.append(LowerLegislativeHouse(congress, legislature=congress, title_abbr='Rep', key_name='us_house_of_reps', name='United States House of Representatives', short_name='House of Representatives', total_members=435))
+    models.append(UpperLegislativeHouse(congress, legislature=congress, title_abbr='Sen', key_name='us_senate', name='United States Senate', short_name='Senate', total_members=100))
 
     return db.put(models)+[congress]
 
@@ -110,5 +177,4 @@ def add_states():
     return db.put(models)
 
 
-
-all_functions = [add_services, add_political_parties, add_federal_legislature, add_states]
+all_functions = [add_services, add_data_engines, add_political_parties, add_election_cycles, add_federal_legislature, add_states, add_graph_artifact_types]

@@ -23,6 +23,7 @@ def get_rules(app):
     rules = [
 
         ## Sandbox Rules
+        Rule('/', endpoint='landing', handler='momentum.fatcatmap.handlers.dev.SandboxProcedure'),
         Rule('/sandbox/home', endpoint='sandbox-index', handler='momentum.fatcatmap.handlers.dev.SandboxIndex'),
         Rule('/sandbox/manage/data', endpoint='sandbox-manage-data', handler='momentum.fatcatmap.handlers.dev.SandboxManageData'),
         Rule('/sandbox/manage/data/<string:procedure>', endpoint='sandbox-data-procedure', handler='momentum.fatcatmap.handlers.dev.SandboxProcedure'),

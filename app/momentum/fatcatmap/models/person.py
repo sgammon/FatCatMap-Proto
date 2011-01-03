@@ -3,14 +3,14 @@ from google.appengine.ext import db
 from ProvidenceClarity.data.core.model import Model
 from ProvidenceClarity.data.core.polymodel import PolyPro
 
-from momentum.fatcatmap.graph import Natural
+from momentum.fatcatmap.models.graph import Native
 
 
 class Role(Model):
     name = db.StringProperty()
 
 
-class Person(Natural):
+class Person(Native):
 
     first_name = db.StringProperty()
     middle_name = db.StringProperty()
@@ -18,6 +18,7 @@ class Person(Natural):
     name_suffix = db.StringProperty()
     nickname = db.StringProperty()
     gender = db.StringProperty(choices=['m','f'])
+    birthdate = db.DateProperty()
 
 
 class RoleMapping(PolyPro):

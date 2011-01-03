@@ -25,57 +25,57 @@ class SandboxProcedure(FCMRequestHandler):
     def get(self, procedure=None):
 
         if procedure == None:
-            return self.response('<b>Procedure empty. Fail.</b>')
-        else:
-            if procedure == 'simple':
-                g = Graph(key_name='simple', name='Simple').put()
+            procedure = 'basedata'
 
-                one = Node(g, key_name='one', label='One').put()
-                two = Node(g, key_name='two', label='Two').put()
-                three = Node(g, key_name='three', label='Three').put()
-                four = Node(g, key_name='four', label='Four').put()
-                five = Node(g, key_name='five', label='Five').put()
-                six = Node(g, key_name='six', label='Six').put()
-                seven = Node(g, key_name='seven', label='Seven').put()
-                eight = Node(g, key_name='eight', label='Eight').put()
-                nine = Node(g, key_name='nine', label='Nine').put()
-                ten = Node(g, key_name='ten', label='Ten').put()
-                node_keys = [one, two, three, four, five, six, seven, eight, nine, ten]
+        if procedure == 'simple':
+            g = Graph(key_name='simple', name='Simple').put()
 
-                edges = []
-                edges.append(Edge(g, key_name='one', nodes=[one, two]))
-                edges.append(Edge(g, key_name='two', nodes=[one, three]))
-                edges.append(Edge(g, key_name='three', nodes=[one, six]))
-                edges.append(Edge(g, key_name='four', nodes=[six, seven]))
-                edges.append(Edge(g, key_name='five', nodes=[six, eight]))
-                edges.append(Edge(g, key_name='six', nodes=[six, nine]))
-                edges.append(Edge(g, key_name='seven', nodes=[six, ten]))
-                edges.append(Edge(g, key_name='eight', nodes=[ten, four]))
-                edges.append(Edge(g, key_name='nine', nodes=[four, five]))
-                edge_keys = db.put(edges)
+            one = Node(g, key_name='one', label='One').put()
+            two = Node(g, key_name='two', label='Two').put()
+            three = Node(g, key_name='three', label='Three').put()
+            four = Node(g, key_name='four', label='Four').put()
+            five = Node(g, key_name='five', label='Five').put()
+            six = Node(g, key_name='six', label='Six').put()
+            seven = Node(g, key_name='seven', label='Seven').put()
+            eight = Node(g, key_name='eight', label='Eight').put()
+            nine = Node(g, key_name='nine', label='Nine').put()
+            ten = Node(g, key_name='ten', label='Ten').put()
+            node_keys = [one, two, three, four, five, six, seven, eight, nine, ten]
 
-                return self.render('sandbox/addData.html', injected_data=True, nodes=node_keys, edges=edge_keys, graphs=[g])
+            edges = []
+            edges.append(Edge(g, key_name='one', nodes=[one, two]))
+            edges.append(Edge(g, key_name='two', nodes=[one, three]))
+            edges.append(Edge(g, key_name='three', nodes=[one, six]))
+            edges.append(Edge(g, key_name='four', nodes=[six, seven]))
+            edges.append(Edge(g, key_name='five', nodes=[six, eight]))
+            edges.append(Edge(g, key_name='six', nodes=[six, nine]))
+            edges.append(Edge(g, key_name='seven', nodes=[six, ten]))
+            edges.append(Edge(g, key_name='eight', nodes=[ten, four]))
+            edges.append(Edge(g, key_name='nine', nodes=[four, five]))
+            edge_keys = db.put(edges)
 
-            elif procedure == 'sunlight':
-                token = channel.create_channel('admin-sandbox-'+os.environ['REMOTE_ADDR'])
+            return self.render('sandbox/addData.html', injected_data=True, nodes=node_keys, edges=edge_keys, graphs=[g])
 
-                t = taskqueue.Task(url=self.url_for('workers-sunlight', procedure='getLegislators'), params={'channel':'admin-sandbox-'+os.environ['REMOTE_ADDR']})
-                t.add('sunlightlabs-worker')
+        elif procedure == 'sunlight':
+            token = channel.create_channel('admin-sandbox-'+os.environ['REMOTE_ADDR'])
 
-                return self.render('sandbox/sunlightConsole.html', channel_token=token)
+            t = taskqueue.Task(url=self.url_for('workers-sunlight', procedure='getLegislators'), params={'channel':'admin-sandbox-'+os.environ['REMOTE_ADDR']})
+            t.add('sunlightlabs-worker')
 
-            elif procedure == 'basedata':
+            return self.render('sandbox/sunlightConsole.html', channel_token=token)
 
-                from momentum.fatcatmap.dev.default_data import all_functions
+        elif procedure == 'basedata':
 
-                proc_result = []
-                for fxn in all_functions:
+            from momentum.fatcatmap.dev.default_data import all_functions
 
-                   resulting_keys = fxn()
-                   proc_result.append('Successfully ran function '+str(fxn)+' and stored resulting '+str(len(resulting_keys))+' keys.')
+            proc_result = []
+            for fxn in all_functions:
+
+               resulting_keys = fxn()
+               proc_result.append('Successfully ran function '+str(fxn.__name__)+' and stored resulting '+str(len(resulting_keys))+' keys.')
 
 
-                return self.render('sandbox/basedata.html', result='<li>'+'</li><li>'.join(proc_result)+'</li>')
+            return self.render('sandbox/basedata.html', result='<li>'+'</li><li>'.join(proc_result)+'</li>')
 
         return self.response('<b>Procedure: '+str(procedure)+'</b>')
 

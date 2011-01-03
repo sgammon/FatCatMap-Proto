@@ -33,11 +33,13 @@ class LowerLegislativeHouse(LegislativeHouse):
 
 
 #### ==== District/Seat Models ==== ####
-class SenateSeat(District):
+class UpperHouseDistrict(District):
     seniority = db.StringProperty(choices=['junior','senior'])
+    house = db.ReferenceProperty(UpperLegislativeHouse, collection_name='districts')
 
-class CongressionalDistrict(District):
+class LowerHouseDistrict(District):
     number = db.IntegerProperty()
+    house = db.ReferenceProperty(LowerLegislativeHouse, collection_name='districts')
 
 
 #### ==== Party Politics ==== ####
@@ -45,3 +47,6 @@ class PoliticalParty(Model):
     name = db.StringProperty()
     plural = db.StringProperty()
     singular = db.StringProperty()
+
+class ElectionCycle(Model):
+    presidential_election = db.BooleanProperty(default=False)

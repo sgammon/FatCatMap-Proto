@@ -17,7 +17,9 @@
 """Datastore models used by the Google App Engine Pipeline API."""
 
 # Relative imports
-import simplejson
+
+## FCM HACK: Uses custom JSON adapter to encode/decode App Engine keys correctly
+from momentum.fatcatmap.core.data.json import FCMJSONAdapter as simplejson
 
 from google.appengine.ext import db
 

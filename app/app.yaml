@@ -43,8 +43,12 @@ handlers:
   
 - url: /_ah/mapreduce.*
   script: $PYTHON_LIB/google/appengine/ext/mapreduce/main.py
-  login: admin  
-  
+  login: admin
+
+- url: /_ah/pipeline(/.*)?
+  script: lib/pipeline/handlers.py
+  login: admin
+
 - url: /_pc/remote_api
   script: $PYTHON_LIB/google/appengine/ext/remote_api/handler.py
   login: admin
@@ -86,10 +90,6 @@ handlers:
 # Generic (Dynamic)
 - url: /assets/ext/.*
   script: assets/ext/static/retrieve.py
-  
-- url: /_bootstrap_/.*
-  script: bootstrap.py
-  login: admin
 
 ## Everything else goes to tipfy
 - url: /.*

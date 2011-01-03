@@ -13,14 +13,15 @@ class Graph(Model):
 class NodeType(Model):
     name = db.StringProperty()
     description = db.TextProperty()
+    native_impl_class = db.StringListProperty(indexed=False)
 
 class Node(Model):
     label = db.StringProperty()
     type = db.ReferenceProperty(NodeType, collection_name='nodes')
 
 class Native(PolyPro):
+    version = db.IntegerProperty(default=1)
     node = db.ReferenceProperty(Node, collection_name='native')
-    version = db.IntegerProperty()
 
 
 #### ==== Models for Node Relationships ==== ####
@@ -28,10 +29,19 @@ class EdgeType(Model):
     name = db.StringProperty()
     description = db.TextProperty()
 
-class Edge(PolyPro):
-    target = db.ReferenceProperty(Node, collection_name='reverse_edges')
-    score = db.FloatProperty(default=0.0)
-
 class Connection(Model):
     nodes = db.ListProperty(db.Key)
     score = db.FloatProperty(default=0.0)
+    
+class Edge(PolyPro):
+    score = db.FloatProperty(default=0.0)
+    target = db.ReferenceProperty(Node, collection_name='reverse_edges')
+    partner = db.SelfReferenceProperty()
+    partner_key = db.StringProperty()
+    connection = db.ReferenceProperty(Connection, collection_name='edges')
+
+class UndirectedEdge(PolyPro):
+    pass
+
+class DirectedEdge(PolyPro):
+    is_source = db.BooleanProperty()
