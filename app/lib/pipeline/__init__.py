@@ -14,6 +14,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import sys
+if '.' not in sys.path: sys.path.insert(0, '.')
+if 'lib' not in sys.path: sys.path.insert(1, 'lib')
+if 'distlib' not in sys.path: sys.path.insert(2, 'distlib')
+
 try:
   from pipeline import *
 except ImportError, e:

@@ -109,6 +109,13 @@ config['momentum.fatcatmap.api'] = {
 
 }
 
+# Pipelines Configuration
+config['momentum.fatcatmap.pipelines'] = {
+
+    'debug': True
+
+}
+
 # Auth Configuration
 config['momentum.fatcatmap.auth'] = {
 	

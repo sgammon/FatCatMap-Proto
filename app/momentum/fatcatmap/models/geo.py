@@ -11,3 +11,7 @@ class USState(Model):
 
 class District(PolyPro):
     state = db.ReferenceProperty(USState, collection_name='districts')
+
+
+class ZipCode(Model):
+    pass

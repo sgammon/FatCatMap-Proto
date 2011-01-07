@@ -6,6 +6,9 @@ from ProvidenceClarity.data.core.polymodel import PolyPro
 from momentum.fatcatmap.models.geo import USState
 from momentum.fatcatmap.models.geo import District
 
+from momentum.fatcatmap.models.group import Group
+from momentum.fatcatmap.models.group import Committee
+
 
 #### ==== Legislature Models ==== ####
 class Legislature(PolyPro):
@@ -18,35 +21,53 @@ class StateLegislature(Legislature):
 
 
 #### ==== Legislative House Models ==== ####
-class LegislativeHouse(PolyPro):
+class LegislativeChamber(PolyPro):
     name = db.StringProperty()
     short_name = db.StringProperty()
     title_abbr = db.StringProperty()
     legislature = db.ReferenceProperty(Legislature, collection_name='houses')
     total_members = db.IntegerProperty()
 
-class UpperLegislativeHouse(LegislativeHouse):
+class UpperLegislativeChamber(LegislativeChamber):
     pass
 
-class LowerLegislativeHouse(LegislativeHouse):
+class LowerLegislativeChamber(LegislativeChamber):
     pass
 
 
 #### ==== District/Seat Models ==== ####
-class UpperHouseDistrict(District):
+class UpperChamberDistrict(District):
     seniority = db.StringProperty(choices=['junior','senior'])
-    house = db.ReferenceProperty(UpperLegislativeHouse, collection_name='districts')
+    chamber = db.ReferenceProperty(UpperLegislativeChamber, collection_name='districts')
 
-class LowerHouseDistrict(District):
+class LowerChamberDistrict(District):
     number = db.IntegerProperty()
-    house = db.ReferenceProperty(LowerLegislativeHouse, collection_name='districts')
+    chamber = db.ReferenceProperty(LowerLegislativeChamber, collection_name='districts')
 
 
 #### ==== Party Politics ==== ####
-class PoliticalParty(Model):
-    name = db.StringProperty()
-    plural = db.StringProperty()
-    singular = db.StringProperty()
+class PoliticalParty(Group):
+    pass
 
 class ElectionCycle(Model):
     presidential_election = db.BooleanProperty(default=False)
+
+
+#### ==== Legislative Committees ==== ####
+class LegislativeCommittee(Committee):
+    name = db.StringProperty()
+    code = db.StringProperty()
+    legislature = db.ReferenceProperty()
+    parent_committee = db.SelfReferenceProperty(collection_name='subcommittees')
+
+    
+class JointCommittee(LegislativeCommittee):
+    chamber = db.ListProperty(db.Key)
+
+
+class UpperChamberCommittee(LegislativeCommittee):
+    chamber = db.ReferenceProperty(UpperLegislativeChamber, collection_name='committees')
+
+
+class LowerChamberCommittee(LegislativeCommittee):
+    chamber = db.ReferenceProperty(LowerLegislativeChamber, collection_name='committees')

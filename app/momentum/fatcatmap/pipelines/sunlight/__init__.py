@@ -8,6 +8,7 @@ class SunlightPipeline(FCMPipeline):
 
     service = 'sunlight'
     sunlight = None
+    queue_name = 'sunlight-worker'
 
     def pre_execute(self):
 

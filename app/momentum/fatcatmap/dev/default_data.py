@@ -4,10 +4,20 @@ from google.appengine.ext import db
 def add_graph_artifact_types():
 
     from momentum.fatcatmap.models.graph import NodeType
+    from momentum.fatcatmap.models.graph import EdgeType
 
     models = []
+
+    ## Add Node Types
     models.append(NodeType(key_name='legislator', name='Legislator', native_impl_class=['momentum','fatcatmap','models','sunlight','Legislator']))
+    models.append(NodeType(key_name='joint_legislative_committee', name='Joint Committee', native_impl_class=['momentum','fatcatmap','models','politics','JointCommittee']))
+    models.append(NodeType(key_name='upper_chamber_legislative_committee', name='Senate Committee', native_impl_class=['momentum','fatcatmap','models','politics','UpperChamberCommittee']))
+    models.append(NodeType(key_name='lower_chamber_legislative_committee', name='House Committee', native_impl_class=['momentum','fatcatmap','models','politics','LowerChamberCommittee']))
     models.append(NodeType(key_name='contributor', name='Contributor', native_impl_class=['momentum','fatcatmap','models','opensecrets','CampaignContributor']))
+
+    ## Add Edge Types
+    models.append(EdgeType(key_name='sunlight_committee_membership', name='Committee Membership', plural='Committee Memberships', edge_text='sits on', edge_impl_class=['momentum','fatcatmap','models','sunlight','CommitteeMembership']))
+    models.append(EdgeType(key_name='campaign_contributions', name='Campaign Contribution', plural='Campaign Contributions', edge_text=['contributed money to','received contributions from'], edge_impl_class=['momentum','fatcatmap','models','opensecrets','CampaignContribution']))
 
     return db.put(models)
 
@@ -33,8 +43,8 @@ def add_services():
 
     ## Sunlight/OpenSecrets Keys
     models = []
-    models.append(ExtServiceKey(sunlight, key_name='s@providenceclarity.com', name='s@providenceclarity.com', value='5716fd8eb1ce418095fe402c7489281e', enforce_limits=False))
-    models.append(ExtServiceKey(opensecrets, key_name='s@providenceclarity.com', name='s@providenceclarity.com', value='254615061689494a6ef579d65d08fb70', enforce_limits=False))
+    models.append(ExtServiceKey(sunlight, service=sunlight, key_name='s@providenceclarity.com', name='s@providenceclarity.com', value='5716fd8eb1ce418095fe402c7489281e', enforce_limits=False))
+    models.append(ExtServiceKey(opensecrets, service=opensecrets, key_name='s@providenceclarity.com', name='s@providenceclarity.com', value='254615061689494a6ef579d65d08fb70', enforce_limits=False))
 
     ## Other Political Services
     models.append(ExtService(key_name='bioguide', name='BioGuide'))
@@ -50,6 +60,9 @@ def add_services():
     models.append(ExtService(key_name='wikipedia', name='Wikipedia'))
     models.append(ExtService(key_name='opencalais', name='OpenCalais'))
     models.append(ExtService(key_name='googlenews', name='Google News'))
+    models.append(ExtService(key_name='uscongress', name='U.S. Congress'))
+    models.append(ExtService(key_name='ussenate', name='U.S. Senate'))
+    models.append(ExtService(key_name='ushouse', name='U.S. House of Representatives'))
 
     return db.put(models)+[sunlight, opensecrets]
 
@@ -74,6 +87,9 @@ def add_data_engines():
 
     models.append(ServicePipeline(sunlight_service, key_name='Legislator', name='Get Single Legislator', async=True, service=sunlight_service, enabled=True))
     models.append(ServicePipeline(sunlight_service, key_name='Legislators', name='Get Legislators List', service=sunlight_service, enabled=True))
+
+    models.append(ServicePipeline(sunlight_service, key_name='Committee', name='Get Single Legislative Committee', async=True, service=sunlight_service, enabled=True))
+    models.append(ServicePipeline(sunlight_service, key_name='Committees', name='Get Legislative Committees List', service=sunlight_service, enabled=True))
 
     return db.put(models)+[sunlight, opensecrets]
 
@@ -107,13 +123,13 @@ def add_election_cycles():
 def add_federal_legislature():
 
     from momentum.fatcatmap.models.politics import Legislature
-    from momentum.fatcatmap.models.politics import LowerLegislativeHouse
-    from momentum.fatcatmap.models.politics import UpperLegislativeHouse
+    from momentum.fatcatmap.models.politics import LowerLegislativeChamber
+    from momentum.fatcatmap.models.politics import UpperLegislativeChamber
 
     models = []
     congress = Legislature(key_name='us_congress',name='United States Congress', short_name='Congress', total_members=535).put()
-    models.append(LowerLegislativeHouse(congress, legislature=congress, title_abbr='Rep', key_name='us_house_of_reps', name='United States House of Representatives', short_name='House of Representatives', total_members=435))
-    models.append(UpperLegislativeHouse(congress, legislature=congress, title_abbr='Sen', key_name='us_senate', name='United States Senate', short_name='Senate', total_members=100))
+    models.append(LowerLegislativeChamber(congress, legislature=congress, title_abbr='Rep', key_name='us_house_of_reps', name='United States House of Representatives', short_name='House of Representatives', total_members=435))
+    models.append(UpperLegislativeChamber(congress, legislature=congress, title_abbr='Sen', key_name='us_senate', name='United States Senate', short_name='Senate', total_members=100))
 
     return db.put(models)+[congress]
 

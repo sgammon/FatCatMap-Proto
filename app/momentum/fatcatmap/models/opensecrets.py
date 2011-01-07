@@ -6,8 +6,8 @@ from momentum.fatcatmap.models.politics import ElectionCycle
 
 
 class CampaignContribution(DirectedEdge):
-    pass
+    total = db.IntegerProperty()
 
 
 class CampaignContributor(Organization):
-    pass
+    name = db.StringProperty()

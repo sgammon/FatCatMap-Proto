@@ -4,6 +4,7 @@ from ProvidenceClarity.data.core.model import Model
 from ProvidenceClarity.data.core.polymodel import PolyPro
 
 from momentum.fatcatmap.models.services import ExtService
+from momentum.fatcatmap.models.system import _ConfigGroup_
 
 
 class DataEngine(PolyPro):
@@ -16,6 +17,10 @@ class Mapper(DataEngine):
     handler = db.StringListProperty(indexed=False)
     params = db.StringListProperty(indexed=False)
     param_defaults = db.StringListProperty(indexed=False)
+
+
+class DataEngineConfig(_ConfigGroup_):
+    parent_ref = db.ReferenceProperty(DataEngine, collection_name='config')
 
 
 class ServiceMapper(Mapper):

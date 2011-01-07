@@ -3,8 +3,7 @@ from google.appengine.ext import db
 from ProvidenceClarity.data.core.model import Model
 from ProvidenceClarity.data.core.polymodel import PolyPro
 
-from momentum.fatcatmap.models.graph import Node
-from momentum.fatcatmap.models.graph import Edge
+from momentum.fatcatmap.models.system import _ConfigGroup_
 
 
 #### ==== Service Models ==== ####
@@ -33,6 +32,11 @@ class ExtInteraction(PolyPro):
     enable_caching = db.BooleanProperty()
 
 
+#### ==== Config Storate ==== ####
+class ExtServiceConfig(_ConfigGroup_):
+    parent_ref = db.ReferenceProperty(ExtService, collection_name='config')
+
+
 #### ==== External ID Models ==== ####
 class ExtID(PolyPro):
     name = db.StringProperty(default=None)
@@ -41,7 +45,7 @@ class ExtID(PolyPro):
     service = db.ReferenceProperty(ExtService, collection_name='consumed_objects')
 
 class NodeID(ExtID):
-    node = db.ReferenceProperty(Node, collection_name='ext_ids')
+    pass
     
 class EdgeID(ExtID):
-    edge = db.ReferenceProperty(Edge, collection_name='ext_ids')
+    pass

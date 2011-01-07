@@ -3,3 +3,7 @@ queue:
 - name: sunlightlabs-worker
   rate: 1/s
   bucket_size: 1
+
+- name: graph-worker
+  rate: 1/s
+  bucket_size: 1

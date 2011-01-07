@@ -53,7 +53,7 @@ def QueryResponder(func):
 		## If it's a query, fetch results according to params and return
 		if isinstance(result, (db.Query)):
 			
-			if 'keys_only' in self.query_params:
+			if 'keys' in self.query_params and self.query_params['keys'] == 'true':
 				result.keys_only = True
 				
 			self.result['data_count'] = result.count()

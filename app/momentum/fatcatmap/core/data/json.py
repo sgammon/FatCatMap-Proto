@@ -1,13 +1,15 @@
+import uuid
 import logging
 
+from google.appengine.api import memcache
 from google.appengine.ext import blobstore
 
-from tipfy import import_string
-
-from simplejson import JSONEncoder
-from simplejson import JSONDecoder
+from django.utils.simplejson import JSONEncoder
+from django.utils.simplejson import JSONDecoder
 
 from google.appengine.ext import db
+
+model_cache = {}
 
 
 #### ==== KEY FUNCTIONS ==== ####
@@ -113,12 +115,22 @@ def encodeModel(model, stop=False):
 	for prop in properties:
 		prop_class = properties[prop].__class__.__name__
 		model_dict['properties'][prop] = convertPropValueToJSON(model, prop, prop_class)
+
+	cache_hint = str(uuid.uuid4())
+	model_dict['_pc_cache_hint'] = cache_hint
+
+	cache_key = 'KEY::'+str(model.key())+'::'+cache_hint
+	logging.info('JSON TRANSPORT CACHE: Storing model '+str(model)+' at memcache location "'+cache_key+'".')
+	global model_cache
+	model_cache[cache_key] = model
+	memcache.set(cache_key, model, time=3600)
+
 	return model_dict
 
-''' TO BE USED AT A LATER DATE!
+
 def decodeModel(model, stop=False):
 
-	'/''
+	'''
 
 	Encodes an App Engine Datastore model to JSON.
 
@@ -128,44 +140,62 @@ def decodeModel(model, stop=False):
 			--class: string representation of property implementation class
 			--value: actual value of property
 
-	'/''
+	'''
 
-	model_dict = {'key':decodeKey(model['key']['value']), 'properties':{}, '_pc_type':'MODEL'}
+	global model_cache
 
 	## Encode key first...
-	decoded_key = decodeKey(model['key']['value'])
+	decoded_key = model['key']
 
-	## Load implementation class...
-	model_impl_class = import_string('.'.join(key['class']['path']))
+	## Grab by cache hint...
+	if '_pc_cache_hint' in model:
 
-	## Create object...
-	model_impl_obj = model_impl_class(key=decoded_key)
+		cache_key = 'KEY::'+str(decoded_key)+'::'+model['_pc_cache_hint']
 
-	for prop, prop_obj in key['properties'].items():
-		setattr(model_impl_obj, prop, convertPropValueFromJSON(model_impl_class, prop, prop_obj))
+		logging.info('JSON TRANSPORT CACHE: Retrieving cache object at location "'+cache_key+'".')
 
+		if cache_key in model_cache:
+			return model_cache[cache_key]
 
-	return model_dict
-'''
+		else:
+			obj = memcache.get(cache_key)
+			if obj is not None:
+				logging.info('JSON TRANSPORT CACHE: Returning memcache object "'+str(obj)+'".')
+				return obj
+
+			logging.error('JSON TRANSPORT CACHE: Cache miss. Failing. Your mileage may vary from here...')
+
+	else:
+		model_impl_class = __import__('.'.join(key['class']['path'])[0:-1], globals(), locals(), '.'.join(key['class']['path'])[-1])
+		model_impl_class = getattr(model_impl_class, '.'.join(key['class']['path'])[-1])
+
+		## Create object...
+		model_impl_obj = model_impl_class(key=decoded_key)
+
+		for prop, prop_obj in key['properties'].items():
+			setattr(model_impl_obj, prop, convertPropValueFromJSON(model_impl_class, prop, prop_obj))
+
+		return model_impl_obj
+
 
 #### ==== Encoder/Decoder Adapters ==== ####
 class FCMJSONAdapter(object):
 
-    @classmethod
-    def dumps(cls, o, *args, **kwargs):
-        return FCMJSONEncoder(*args, **kwargs).encode(o)
+	@classmethod
+	def dumps(cls, o, *args, **kwargs):
+		return FCMJSONEncoder(*args, **kwargs).encode(o)
 
-    @classmethod
-    def loads(cls, o, *args, **kwargs):
-        return FCMJSONDecoder(*args, **kwargs).decode(o)
+	@classmethod
+	def loads(cls, o, *args, **kwargs):
+		return FCMJSONDecoder(*args, **kwargs).decode(o)
 
-    @classmethod
-    def encode(cls, *args, **kwargs):
-        return FCMJSONEncoder().encode(*args, **kwargs)
+	@classmethod
+	def encode(cls, *args, **kwargs):
+		return FCMJSONEncoder().encode(*args, **kwargs)
 
-    @classmethod
-    def decode(cls, *args, **kwargs):
-        return FCMJSONDecoder().decode(*args, **kwargs)
+	@classmethod
+	def decode(cls, *args, **kwargs):
+		return FCMJSONDecoder().decode(*args, **kwargs)
 
 
 class FCMJSONEncoder(JSONEncoder):
@@ -173,8 +203,10 @@ class FCMJSONEncoder(JSONEncoder):
 	def default(self, o):
 
 		if isinstance(o, (db.Model, db.Key)):
-			if isinstance(o, db.Key): return encodeKey(o)
-			elif isinstance(o, db.Model): return encodeModel(o)
+			if isinstance(o, db.Key):
+				return encodeKey(o)
+			elif isinstance(o, db.Model):
+				return encodeModel(o)
 		else:
 			return JSONEncoder().encode(o)
 
@@ -193,6 +225,8 @@ class FCMJSONDecoder(JSONDecoder):
 		if '_pc_type' in o:
 			if o['_pc_type'].lower() == 'key':
 				return decodeKey(o)
+			if o['_pc_type'].lower() == 'model':
+				return decodeModel(o)
 		return o
 
 	def encode(self, o):
