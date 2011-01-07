@@ -9,6 +9,8 @@ from django.utils.simplejson import JSONDecoder
 
 from google.appengine.ext import db
 
+from momentum.fatcatmap.core.data import MomentumDataAdapter
+
 model_cache = {}
 
 
@@ -179,7 +181,7 @@ def decodeModel(model, stop=False):
 
 
 #### ==== Encoder/Decoder Adapters ==== ####
-class FCMJSONAdapter(object):
+class FCMJSONAdapter(MomentumDataAdapter):
 
 	@classmethod
 	def dumps(cls, o, *args, **kwargs):

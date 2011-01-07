@@ -17,7 +17,7 @@ from momentum.fatcatmap.models.services import NodeID
 from momentum.fatcatmap.models.services import ExtService
 from momentum.fatcatmap.models.services import ExtServiceKey
 
-from momentum.fatcatmap.core.data.json import FCMJSONAdapter
+from momentum.fatcatmap.core.data.adapters.json import FCMJSONAdapter
 
 
 #### ==== Pipeline Support Framework ==== ####

@@ -1,0 +1,1 @@
+## AJAX Media API (for uploads and stuff)

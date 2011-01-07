@@ -1,100 +1,109 @@
 import config
 import logging
-import simplejson
 
-from tipfy import Response
 from tipfy import import_string
 from tipfy import cached_property
-from tipfy.ext.jsonrpc import JSONRPCMixin
 
-from lovely.jsonrpc.dispatcher import JSONRPCDispatcher
-
-from momentum.fatcatmap.handlers import BaseFCMRequestHandler
-from momentum.fatcatmap.core.data.encode import FCMJSONEncoder
+from momentum.fatcatmap.api import MomentumAPIRequest
+from momentum.fatcatmap.handlers import FCMBaseRequestHandler
 
 
-class MomentumAPIDispatcher(BaseSPIRequestHandler, JSONRPCMixin):
+class CheshireDispatch(FCMBaseRequestHandler):
 
-	jsonrpc_service = None
+    config = {}
+    adapter = None
+    api_request = None
 
-	def dispatchAPICall(self, module, service, method, format, http_method):
-		
-		## @TODO: Add error checking here
-		api_module = import_string('.'.join(['momentum','fatcatmap','api', module, service, service+'Service']))()
 
-		## Debug logging
-		do_log = False
-		if self.apiConfig['debug'] == True: do_log = True
-		if do_log:
-			logging.info('=============== API DISPATCHER ===============')
-			logging.info('--Module: '+str(module))
-			logging.info('--Service: '+str(service))
-			logging.info('--Method: '+str(method))
-			logging.info('--Format: '+str(format))
-			logging.info('--HTTP Method: '+str(http_method))
-			logging.info('--Request Data: '+str(self.request.data))
-		
-		if method is None:
-			if format == 'json':
-				
-				if do_log: logging.info('=== ACTION IS JSONRPC. BEGINNING ACTION ===')
-				
-				## Set JSONRPC params
-				self.jsonrpc_service = api_module
-				
-				if do_log:
-					logging.info('--Service: '+str(self.jsonrpc_service))
-					logging.info('--Name: '+str(self.jsonrpc_name))
-					logging.info('--Summary: '+str(self.jsonrpc_summary))
-					logging.info('=== RUNNING DISPATCHER ===')
-				
-				res = self.json_rpc_dispatcher.dispatch(self.request.data)
-				
-				if do_log:
-					logging.info('--Result: '+str(res))
-					logging.info('Finished request. Responding.')
-				
-				return Response(FCMJSONEncoder().encode(res), mimetype='application/json')
-			else:
-				return Response('<b>Given format not supported.</b>')
-		else:
-			res = getattr(api_module, method)()
-			if format == 'json':
-				return Response(res, mimetype='application/json')
-				
-	@cached_property
-	def json_rpc_dispatcher(self):
-		return JSONRPCDispatcher(instance=self.jsonrpc_service,
-								 name=self.jsonrpc_name,
-								 summary=self.jsonrpc_summary,
-								 help=self.jsonrpc_help,
-								 address=self.jsonrpc_address,
-								 json_impl=SPIJSONEncoder)
-								
-				
-	@cached_property
-	def apiConfig(self):
-		return config.config.get('wirestone.spi.api')
+    def handleRequest(self, request):
 
-		
-	# =============== MAP HTTP METHODS TO DISPATCHER =============== #
-	def get(self, module, service=None, method=None, format='json'):
-		return self.dispatchAPICall(module, service, method, format, 'GET')
-		
-	def post(self, module, service=None, method=None, format='json'):
-		return self.dispatchAPICall(module, service, method, format, 'POST')
-		
-	def put(self, module, service=None, method=None, format='json'):
-		return self.dispatchAPICall(module, service, method, format, 'PUT')
-		
-	def delete(self, module, service=None, method=None, format='json'):
-		return self.dispatchAPICall(module, service, method, format, 'DELETE')
-		
-	def options(self, module, service=None, method=None, format='json'):
-		return self.dispatchAPICall(module, service, method, format, 'OPTIONS')
-		
-	def head(self, module, service=None, method=None, format='json'):
-		return self.dispatchAPICall(module, service, method, format, 'HEAD')
-		
-	def trace(self, module, service, method=None, format='json'):
-		return self.dispatchAPICall(module, service, method, format, 'TRACE')
+        self.api_request = request
+
+        ## Resolve method
+        func = self.resolveMethod(self.api_request.method)
+
+
+    def decodeRequest(self, *args, **kwargs):
+
+        self.config = self.gatherConfig()
+
+        ## Load Adapter
+        if 'format' in config:
+            if config['format'].lower() in self.apiConfig['adapters']:
+                if self.apiConfig['adapters'][config['format'].lower()]['enabled'] != True:
+
+                    if self.apiConfig['debug'] == True:
+                        logging.warning('Invalid output adapter encountered: "'+str(config['output'].lower())+'". Responding with error.')
+                    raise FormatDisabled
+                else:
+                    self.loadDataAdapter(self.apiConfig['adapters'][config['format'].lower()]['path'])
+            else:
+                raise FormatInvalid
+        else:
+            self.loadDataAdapter(self.apiConfig['adapters']['default'])
+
+        ## Decode Payload
+        self.api_request = MomentumAPIRequest.spawnRequest(self.config, self.adapter)
+
+        ## Resolve method
+        self.computed_method = self.resolveMethod()
+
+
+    def gatherConfig(self, **kwargs):
+        temp_config = {}
+
+        ## Combine GET Args
+        if len(self.request.args) > 0:
+            for key, value in self.request.args.items():
+                temp_config[key] = value
+
+        ## Combine POST Params
+        if len(self.request.form) > 0:
+            for key, value in self.request.form.items():
+                temp_config[key] = value
+
+        ## Combine URL segments
+        if len(kwargs) > 0:
+            for key, value in kwargs.items():
+                temp_config[key] = value
+
+        return temp_config
+
+
+    def loadDataAdapter(self, path_or_name):
+
+        if isinstance(path_or_name, basestring):
+            if path_or_name in self.apiConfig['adapters']:
+                self.adapter = import_string('.'.join(self.apiConfig['adapters'][path_or_name]['path']))()
+        elif isinstance(path_or_name, list):
+            self.adapter = import_string('.'.join(path_or_name))()
+
+
+    def resolveMethod(self):
+
+        if len(self.api_request.method)
+
+
+    @cached_property
+    def apiConfig(self):
+        return config.config.get('momentum.fatcatmap.api')
+
+
+    def get(self, *args, **kwargs): return self.handleRequest(self.decodeRequest(*args, **kwargs))
+    def put(self, *args, **kwargs): return self.handleRequest(self.decodeRequest(*args, **kwargs))
+
+    def post(self, *args, **kwargs): return self.handleRequest(self.decodeRequest(*args, **kwargs))
+    def head(self, *args, **kwargs): return self.handleRequest(self.decodeRequest(*args, **kwargs))
+    def delete(self, *args, **kwargs): return self.handleRequest(self.decodeRequest(*args, **kwargs))
+    def options(self, *args, **kwargs): return self.handleRequest(self.decodeRequest(*args, **kwargs))
+
+
+### API Exceptions
+class APIException(Exception): message = 'An error was encountered while processing your request. Please try again later.'
+
+class OutputException(APIException): message = 'An error was encountered during response encoding. Please try again.'
+class FormatInvalid(OutputException): message = 'The specified output type is not supported. Please rewrite your request and try again.'
+class FormatDisabled(OutputException): message = 'The specified output type is currently disabled. Please rewrite your request and try again.'
+
+class MethodException(APIException): message = 'An error was encountered trying to find or complete the requested method. Please try again later.'
+class InvalidMethod(MethodException): message = 'The requested method could not be found. Please try again.'

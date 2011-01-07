@@ -64,6 +64,7 @@ config['tipfy.ext.jinja2'] = {
 # Main Config
 config['momentum.fatcatmap'] = {
 
+    'name':'FatCatMap//BETA',
     'version_major': 0,
     'version_minor': 7,
     'version_micro': 20101217,
@@ -106,6 +107,38 @@ config['momentum.fatcatmap.data'] = {
 config['momentum.fatcatmap.api'] = {
 
 	'debug': False, ## Turns on debug logging for the API dispatcher and API requests
+
+    ## API Modules
+    'modules':{
+
+        'ajax':{'enabled':False},
+        'data':{'enabled':True},
+        'graph':{'enabled':False},
+        'media':{'enabled':False},
+        'platform':{'enabled':False},
+        'work':{'enabled':False}
+
+    },
+
+    ## API Adapters
+    'adapters':{
+
+        'default': 'json',
+        'json': {'enabled':True,'path':['momentum','fatcatmap','core','data','adapters','json','FCMJSONAdapter']},
+        'amf': {'enabled':False,'path':['momentum','fatcatmap','core','data','adapters','amf','FCMAMFAdapter']},
+        'xml': {'enabled':False,'path':['momentum','fatcatmap','core','data','adapters','xml','FCMXMLAdapter']},
+        'protobuf': {'enabled':False,'path':['momentum','fatcatmap','core','data','adapters','protobuf','FCMProtoAdapter']},
+        'atom': {'enabled':False,'path':['momentum','fatcatmap','core','data','adapters','atom','FCMAtomAdapter']},
+        'rss': {'enabled':False,'path':['momentum','fatcatmap','core','data','adapters','rss','FCMRSSAdapter']}
+
+    }
+
+}
+
+# Pipelines Configuration
+config['momentum.fatcatmap.pipelines'] = {
+
+    'debug': True
 
 }
 

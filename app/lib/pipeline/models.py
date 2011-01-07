@@ -19,7 +19,7 @@
 # Relative imports
 
 ## FCM HACK: Uses custom JSON adapter to encode/decode App Engine keys correctly
-from momentum.fatcatmap.core.data.json import FCMJSONAdapter as simplejson
+from momentum.fatcatmap.core.data.adapters.json import FCMJSONAdapter as simplejson
 
 from google.appengine.ext import db
 

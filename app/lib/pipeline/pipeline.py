@@ -52,7 +52,7 @@ from google.appengine.ext import webapp
 import models
 
 ## FCM HACK: Uses custom JSON adapter to encode/decode App Engine keys correctly
-from momentum.fatcatmap.core.data.json import FCMJSONAdapter as simplejson
+from momentum.fatcatmap.core.data.adapters.json import FCMJSONAdapter as simplejson
 
 import util as mr_util
 
